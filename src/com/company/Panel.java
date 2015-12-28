@@ -24,6 +24,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private BufferedImage hud; //a buffered image for the HUD
 
     private Font mainFont;
+    private Font smallFont;
     private final static Color hudColor = new Color(0.12f, 0.12f, 0.12f);
 
     //A radial gradient paint for the blue background
@@ -45,6 +46,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             mainFont = Font.createFont(Font.TRUETYPE_FONT,
                     new FileInputStream("res/ArchivoBlack.ttf"));
             mainFont = mainFont.deriveFont(25F);
+            smallFont = mainFont.deriveFont(16F);
 
             //Load the HUD image
             hud = ImageIO.read(new File("res/hud.png"));
@@ -95,8 +97,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         g.setColor(hudColor);
 
         //Draw the spare armies of each opponent
-        g.drawString(Integer.toString(gameState.armyPlayer), 193, 46);
-        g.drawString(Integer.toString(gameState.armyComputer), 1055, 46);
+        g.setFont(smallFont);
+        String playerString = Integer.toString(gameState.armyPlayer);
+        String computerString = Integer.toString(gameState.armyComputer);
+        g.drawString(playerString, (float) (195 - g.getFontMetrics().getStringBounds(playerString, g).getWidth()), 47);
+        g.drawString(computerString, 1055, 47);
 
 
         //Draw the current game phase

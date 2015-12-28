@@ -65,7 +65,7 @@ public class Territory {
 
         //Draw the border of the territory
         g.setColor(new Color(60, 60, 60));
-        g.setStroke(new BasicStroke(1));
+        g.setStroke(new BasicStroke(1.5f));
         for (Polygon pol : patches) g.drawPolygon(pol);
 
     }
@@ -76,13 +76,14 @@ public class Territory {
      * @param g Graphics2D object to be draw on
      */
     public void paintCapitals(Graphics2D g) {
-        g.setColor(new Color(1f, 1f, 1f, 0.5f));
+        g.setColor(new Color(1f, 1f, 1f, 0.4f));
         g.fillOval(capital.x - 13, capital.y - 13, 26, 26);
         g.setColor(Color.WHITE);
+        g.setStroke(new BasicStroke(1.8f));
         g.drawOval(capital.x - 13, capital.y - 13, 26, 26);
         String toPrint = ((Integer) Math.abs(army)).toString();
         Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(toPrint, g);
-        g.drawString(toPrint, capital.x - (int) (stringBounds.getWidth() / 2), capital.y + (int) (stringBounds.getHeight() / 2));
+        g.drawString(toPrint, capital.x - (float) (stringBounds.getWidth() / 2), capital.y - 2 + (float) (stringBounds.getHeight() / 2f));
     }
 
     /**
