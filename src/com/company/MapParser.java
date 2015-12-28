@@ -15,14 +15,13 @@ public class MapParser {
     private static final int mapHeight = 650, mapWidth = 1250; //width and height of the map and also the window
 
     /**
-     * Parses a Map in the given format and returns a List of Continents, containing all the information of the String
+     * Parses a Map in the given format and returns a GameMap object, containing all the information of the String
      *
      * @param map       String in the given format containing the information of the map
-     * @param neighbors A list of neighbors, where all the neighbors, that are given in the map, are written to
-     * @return A list of Continents, containing all the information if the Map-String
+     * @return A GameMap object, containing all the information of the Map-String
      * @throws IOException
      */
-    public static List<Continent> parseMap(String map, List<Neighbors> neighbors) throws IOException {
+    public static GameMap parseMap(String map) throws IOException {
 
         Map<String, List<Polygon>> territories = new HashMap<>();  //Eine Map f�r die sp�tere Konvertierung in eine List<Territory>
         Map<String, Point> capitals = new HashMap<>();              //Map, that saves the Position of the Capitals of each Territory
@@ -79,13 +78,13 @@ public class MapParser {
         Continent restOfMap = new Continent(territoryList, 0, continentBorder);
         continentList.add(restOfMap);
 
-        if (neighbors == null) neighbors = new LinkedList<>();
+        List<Neighbors> neighbors = new LinkedList<>();
         for (Map.Entry<String, List<String>> entry : neighborList.entrySet()) {
             for (String neighbourTwo : entry.getValue())
                 neighbors.add(new Neighbors(territoryMap.get(entry.getKey()), territoryMap.get(neighbourTwo)));
         }
 
-        return continentList;
+        return new GameMap(continentList, neighbors);
     }
 
     /**

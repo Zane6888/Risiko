@@ -11,12 +11,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
-    private List<Continent> continents = new LinkedList<>();  //List if continents containing all the map data
-    private List<Neighbors> neighbors = new LinkedList<>(); //List of neighbored territories
+    private GameMap map;
 
     private GameState gameState; //current game state
 
@@ -26,12 +23,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000, new float[]{0.0f, 0.5f}, new Color[]{new Color(150, 216, 255), new Color(89, 193, 255)});
 
     /**
-     * @param map A string in the given format containing the informations from the map
+     * @param map A string in the given format containing the information from the map
      */
     public Panel(String map) {
         super(true);
         try {
-            continents = MapParser.parseMap(map, neighbors);
+            this.map = MapParser.parseMap(map);
         } catch (IOException e) {
             System.out.println("FEHLER: " + e.getMessage()); //TODO Fehler stattdessen auf Panel ausgeben
         }
@@ -59,11 +56,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         paintBackground(g2);
-        paintNeighbors(g2);
 
-        for (Continent c : continents) {
-            c.paintComponent(g2);
-        }
+        map.paint(g2);
 
         paintHUD(g2);
     }
@@ -90,50 +84,6 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     }
 
-    /**
-     * Draws a dashed line for the connection between neighbors
-     *
-     * @param g     Graphics2D object for drawing
-     * @param start Starting point
-     * @param end   End point
-     */
-    private void drawDashedLine(Graphics2D g, Point start, Point end) {
-        g.setColor(new Color(180, 180, 180));
-        g.setStroke(new BasicStroke(5));
-        g.drawLine(start.x, start.y, end.x, end.y);
-        float dash1[] = {10.0f};
-        BasicStroke dashed =
-                new BasicStroke(5.0f,
-                        BasicStroke.CAP_BUTT,
-                        BasicStroke.JOIN_MITER,
-                        10.0f, dash1, 0.0f);
-        g.setColor(new Color(230, 230, 230));
-        g.setStroke(dashed);
-        g.drawLine(start.x, start.y, end.x, end.y);
-    }
-
-    /**
-     * Draws all connections between neighbors in the correct way
-     *
-     * @param g Graphics2D element for drawing
-     */
-    private void paintNeighbors(Graphics2D g) {
-        for (Neighbors n : neighbors) {
-            Point start = n.neighborOne.getCapitalPosition();
-            Point end = n.neighborTwo.getCapitalPosition();
-            if (Math.abs(start.x - end.x) > 625) { //if the start and end point are two far away draw the other side arround
-                if (start.x < end.x) {
-                    drawDashedLine(g, start, new Point(-end.x, end.y));
-                    drawDashedLine(g, end, new Point(1250 + start.x, start.y));
-                } else {
-                    drawDashedLine(g, start, new Point(1250 + end.x, end.y));
-                    drawDashedLine(g, end, new Point(-start.x, start.y));
-                }
-                //TODO IF-Verzeigungen f�r die y-Koordinate fehlen noch
-            } else drawDashedLine(g, start, end);
-        }
-    }
-
     public void mousePressed(MouseEvent me) {
     }
 
@@ -147,6 +97,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     }
 
     public void mouseClicked(MouseEvent me) {
+        java.util.List<Continent> continents = map.getContinents();
         for (Continent c : continents) {
             if (c.mouseClicked(me.getX(), me.getY(), gameState)) {
                 this.repaint();
@@ -175,12 +126,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     }
 
     public void mouseMoved(MouseEvent me) {
-        for (Continent c : continents) {
+        for (Continent c : map.getContinents()) {
             if (c.mouseMoved(me.getX(), me.getY(), gameState)) {
                 this.repaint();
                 break;
             }
-
         }
     }
 
