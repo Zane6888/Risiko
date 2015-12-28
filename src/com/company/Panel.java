@@ -9,15 +9,20 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
 import java.util.Collections;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
+    private static final int height = 650, width = 1250; //width and height of the window
+
     private GameMap map;
 
     private GameState gameState; //current game state
 
     private BufferedImage hud; //a buffered image for the HUD
+
+    private Font mainFont;
+    private final static Color hudColor = new Color(0.12f, 0.12f, 0.12f);
 
     //A radial gradient paint for the blue background
     private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000, new float[]{0.0f, 0.5f}, new Color[]{new Color(150, 216, 255), new Color(89, 193, 255)});
@@ -28,16 +33,19 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     public Panel(String map) {
         super(true);
         try {
+            //Load the map
             this.map = MapParser.parseMap(map);
-        } catch (IOException e) {
-            System.out.println("FEHLER: " + e.getMessage()); //TODO Fehler stattdessen auf Panel ausgeben
-        }
 
-        //Load the HUD image
-        try {
+            //Load the font
+            mainFont = Font.createFont(Font.TRUETYPE_FONT,
+                    new FileInputStream("res/ArchivoBlack.ttf"));
+            mainFont = mainFont.deriveFont(25F);
+
+            //Load the HUD image
             hud = ImageIO.read(new File("res/hud.png"));
-        } catch (IOException e) {
-            System.out.println("FEHLER: " + e.getMessage());
+
+        } catch (Exception e) {
+            System.out.println("FEHLER: " + e.getMessage()); //TODO Fehler stattdessen auf Panel ausgeben
         }
 
         gameState = new GameState(GamePhase.LANDERWERB, 0, 0);
@@ -64,8 +72,28 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     private void paintHUD(Graphics2D g) {
         g.drawImage(hud, 0, 0, null);
+
+        g.setColor(hudColor);
+
+        //Draw the spare armies of each opponent
         g.drawString(Integer.toString(gameState.armyPlayer), 193, 46);
         g.drawString(Integer.toString(gameState.armyComputer), 1055, 46);
+
+
+        //Draw the current game phase
+        g.setFont(mainFont);
+        String currentPhase = "";
+        switch (gameState.currentPhase) {
+            case LANDERWERB:
+            case LANDERWERBComputer:
+                currentPhase = "CLAIM";
+                break;
+            case EROBERUNG:
+                currentPhase = "ATTACK";
+                break;
+        }
+        double stringWidth = g.getFontMetrics().getStringBounds(currentPhase, g).getWidth();
+        g.drawString(currentPhase, (int) (width / 2f - stringWidth / 2), 27);
     }
 
     private void paintBackground(Graphics2D g) {
