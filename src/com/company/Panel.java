@@ -1,5 +1,7 @@
 package com.company;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +29,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     //A radial gradient paint for the blue background
     private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000, new float[]{0.0f, 0.5f}, new Color[]{new Color(150, 216, 255), new Color(89, 193, 255)});
 
+    private boolean errorOccurred = false;
+
     /**
      * @param map A string in the given format containing the information from the map
      */
@@ -34,7 +38,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         super(true);
         try {
             //Load the map
-            this.map = MapParser.parseMap(map);
+            if (!map.equals("")) this.map = MapParser.parseMap(map);
+            else throw new InvalidArgumentException(new String[]{"The given map is empty"});
 
             //Load the font
             mainFont = Font.createFont(Font.TRUETYPE_FONT,
@@ -44,8 +49,19 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             //Load the HUD image
             hud = ImageIO.read(new File("res/hud.png"));
 
+
         } catch (Exception e) {
-            System.out.println("FEHLER: " + e.getMessage()); //TODO Fehler stattdessen auf Panel ausgeben
+            errorOccurred = true;
+
+            System.out.println("FEHLER: " + e.getMessage());
+            JLabel errorLabel = new JLabel("<html><body>An error occurred while loading.<br>Error Message: " + e.getMessage() + "</body><html>", SwingConstants.CENTER);
+
+            this.add(errorLabel, BorderLayout.CENTER);
+
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            add(Box.createHorizontalGlue());
+            add(errorLabel);
+            add(Box.createHorizontalGlue());
         }
 
         gameState = new GameState(GamePhase.CLAIM, 0, 0);
@@ -65,9 +81,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         paintBackground(g2);
 
-        map.paint(g2);
+        if (!errorOccurred) {
+            map.paint(g2);
+            paintHUD(g2);
+        }
 
-        paintHUD(g2);
+
     }
 
     private void paintHUD(Graphics2D g) {
@@ -125,41 +144,46 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     }
 
     public void mouseClicked(MouseEvent me) {
-        java.util.List<Continent> continents = map.getContinents();
-        for (Continent c : continents) {
-            if (c.mouseClicked(me.getX(), me.getY(), gameState)) {
-                this.repaint();
-                break;
-            }
-
-        }
-
-        if (gameState.currentPhase == GamePhase.CLAIMComputer) {
-            Collections.shuffle(continents);
-            gameState.currentPhase = GamePhase.ATTACK;
+        if (!errorOccurred) {
+            java.util.List<Continent> continents = map.getContinents();
             for (Continent c : continents) {
-                if (c.conquer()) {
-                    gameState.currentPhase = GamePhase.CLAIM;
+                if (c.mouseClicked(me.getX(), me.getY(), gameState)) {
+                    this.repaint();
                     break;
                 }
-            }
-            gameState.armyComputer = 0;
-            gameState.armyPlayer = 0;
-            for (Continent c : continents) c.calculateArmies(gameState);
-            gameState.armyComputer /= 3;
-            gameState.armyPlayer /= 3;
-        }
 
-        this.repaint();
+            }
+
+            if (gameState.currentPhase == GamePhase.CLAIMComputer) {
+                Collections.shuffle(continents);
+                gameState.currentPhase = GamePhase.ATTACK;
+                for (Continent c : continents) {
+                    if (c.conquer()) {
+                        gameState.currentPhase = GamePhase.CLAIM;
+                        break;
+                    }
+                }
+                gameState.armyComputer = 0;
+                gameState.armyPlayer = 0;
+                for (Continent c : continents) c.calculateArmies(gameState);
+                gameState.armyComputer /= 3;
+                gameState.armyPlayer /= 3;
+            }
+
+            this.repaint();
+        }
     }
 
     public void mouseMoved(MouseEvent me) {
-        for (Continent c : map.getContinents()) {
-            if (c.mouseMoved(me.getX(), me.getY(), gameState)) {
-                this.repaint();
-                break;
+        if (!errorOccurred) {
+            for (Continent c : map.getContinents()) {
+                if (c.mouseMoved(me.getX(), me.getY(), gameState)) {
+                    this.repaint();
+                    break;
+                }
             }
         }
+
     }
 
     public void mouseDragged(MouseEvent me) {

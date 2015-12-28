@@ -1,5 +1,7 @@
 package com.company;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.awt.*;
 import java.awt.geom.Area;
 import java.io.BufferedReader;
@@ -21,7 +23,7 @@ public class MapParser {
      * @return A GameMap object, containing all the information of the Map-String
      * @throws IOException
      */
-    public static GameMap parseMap(String map) throws IOException {
+    public static GameMap parseMap(String map) throws IOException, InvalidArgumentException {
 
         Map<String, List<Polygon>> territories = new HashMap<>();  //Eine Map f�r die sp�tere Konvertierung in eine List<Territory>
         Map<String, Point> capitals = new HashMap<>();              //Map, that saves the Position of the Capitals of each Territory
@@ -42,6 +44,8 @@ public class MapParser {
                 continent(line, continentBonus, continents); //The string begins with the keyword "continent" and is parsed in the continent()-method
             } else if (line.startsWith("neighbors-of ")) {
                 neighborsOf(line, neighborList); //The string begins with the keyword "neighbors-of" and is parsed in the neighborsOf()-method
+            } else {
+                if (line.equals("")) throw new InvalidArgumentException(new String[]{"Invalid line in map"});
             }
         }
 
