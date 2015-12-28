@@ -51,7 +51,7 @@ public class Continent {
      * @return Returns true iff the panel has to be redrawn
      */
     public boolean mouseMoved(int x, int y, GameState gameState) {
-        if (gameState.currentPhase == GamePhase.LANDERWERB) {
+        if (gameState.currentPhase == GamePhase.CLAIM) {
             if (borders.contains(x, y)) {  //if the mouse is within the borders of the continent
 
                 //Iterate throug all territories to check if mouse is within their borders
@@ -104,14 +104,14 @@ public class Continent {
      * @return returns true iff Panel has to be redrawn
      */
     public boolean mouseClicked(int x, int y, GameState gameState) {
-        if (gameState.currentPhase == GamePhase.LANDERWERB) {
+        if (gameState.currentPhase == GamePhase.CLAIM) {
             if (borders.contains(x, y)) {
                 for (Territory t : territories) {
                     if (t.getArmy() == 0 && t.contains(x, y)) {
                         t.setArmy(t.getArmy() + 1);
                         isMonopol();
                         hoverTerritory = null;
-                        gameState.currentPhase = GamePhase.LANDERWERBComputer;
+                        gameState.currentPhase = GamePhase.CLAIMComputer;
                         return true;
                     }
                 }

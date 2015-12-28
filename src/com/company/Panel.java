@@ -48,7 +48,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             System.out.println("FEHLER: " + e.getMessage()); //TODO Fehler stattdessen auf Panel ausgeben
         }
 
-        gameState = new GameState(GamePhase.LANDERWERB, 0, 0);
+        gameState = new GameState(GamePhase.CLAIM, 0, 0);
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -84,11 +84,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         g.setFont(mainFont);
         String currentPhase = "";
         switch (gameState.currentPhase) {
-            case LANDERWERB:
-            case LANDERWERBComputer:
+            case CLAIM:
+            case CLAIMComputer:
                 currentPhase = "CLAIM";
                 break;
-            case EROBERUNG:
+            case ATTACK:
                 currentPhase = "ATTACK";
                 break;
         }
@@ -134,12 +134,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         }
 
-        if (gameState.currentPhase == GamePhase.LANDERWERBComputer) {
+        if (gameState.currentPhase == GamePhase.CLAIMComputer) {
             Collections.shuffle(continents);
-            gameState.currentPhase = GamePhase.EROBERUNG;
+            gameState.currentPhase = GamePhase.ATTACK;
             for (Continent c : continents) {
                 if (c.conquer()) {
-                    gameState.currentPhase = GamePhase.LANDERWERB;
+                    gameState.currentPhase = GamePhase.CLAIM;
                     break;
                 }
             }
