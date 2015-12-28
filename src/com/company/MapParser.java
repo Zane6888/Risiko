@@ -33,7 +33,7 @@ public class MapParser {
         BufferedReader reader = new BufferedReader(new StringReader(map));
         String line;
         while ((line = reader.readLine()) != null) {
-            line.trim();
+            line = line.trim();
             if (line.startsWith("patch-of ")) {
                 patchOf(line, territories); //The string begins with the keyword "patch-of" and is parsed in the patchOf()-method
             } else if (line.startsWith("capital-of ")) {
@@ -238,16 +238,15 @@ public class MapParser {
     }
 
     /**
-     * Maps an Integer x, that is in the range of in_min and in_max, to an range of out_min and out_max
+     * Maps a Float f, that is in the range of in_min and in_max, to an range of out_min and out_max
      *
-     * @param x       the value that is to map
+     * @param f       the value that is to map
      * @param in_min  Minimum of the input range
      * @param in_max  maximum of the input range
      * @param out_min minimum of the output range
      * @param out_max maximum of the output range
-     * @return
      */
-    public static int map(float x, float in_min, float in_max, float out_min, float out_max) {
-        return (int) ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+    public static int map(float f, float in_min, float in_max, float out_min, float out_max) {
+        return (int) ((f - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
     }
 }
