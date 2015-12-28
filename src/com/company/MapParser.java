@@ -196,13 +196,13 @@ public class MapParser {
         for (int i = 0; i < header.length - 1; i++)
             name += " " + header[i];
         name = name.trim(); //remove the first whitespace from the string
-        Integer bonus = Integer.getInteger(header[header.length - 1]);
+        Integer bonus = Integer.parseInt(header[header.length - 1]);
 
         //Body
         String[] body = words[1].split("\\s-\\s");
 
         //Parse the data into the maps
-        continentBonus.put(name, 3);  //TODO Funktioniert mit bonus anstatt mit 3 nicht, NullPointerException beim Erstellen des Continents
+        continentBonus.put(name, bonus);
         continents.put(name, Arrays.asList(body));
     }
 
