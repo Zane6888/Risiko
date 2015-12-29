@@ -5,6 +5,8 @@ import java.awt.geom.Area;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 
 public class Continent {
@@ -196,6 +198,14 @@ public class Continent {
             }
         }
         return false;
+    }
+
+    public Territory getRandomTerritory(Predicate<Territory> p) {
+        return Helper.getRandom(territories.stream().filter(p).collect(Collectors.toList()));
+    }
+
+    public boolean containsTerritory(Predicate<Territory> p) {
+        return territories.stream().filter(p).findAny().isPresent();
     }
 
     /**

@@ -2,6 +2,8 @@ package com.company;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class GameMap {
     private List<Neighbors> neighbors;
@@ -26,5 +28,16 @@ public class GameMap {
 
         for (Continent c : continents)
             c.paintComponent(g);
+    }
+
+    public Territory getRandomTerritory(Predicate<Territory> p) {
+        return Helper.getRandom(continents.stream().filter(c -> c.containsTerritory(p)).collect(Collectors.toList())).getRandomTerritory(p);
+    }
+
+    public boolean containsTerritory(Predicate<Territory> p) {
+        for (Continent c : continents)
+            if (c.containsTerritory(p))
+                return true;
+        return false;
     }
 }
