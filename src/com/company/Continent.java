@@ -15,10 +15,11 @@ public class Continent {
 
     private boolean isMonopolPlayer, isMonopolComp; //two booleans that save if the whole continent is owned by the player or the computer
 
-    public Continent(List<Territory> territories, int bonus, Area borders) {
+    public Continent(List<Territory> territories, int bonus) {
         this.territories = territories;
         this.bonus = bonus;
-        this.borders = borders;
+        borders = new Area();
+        for (Territory t : territories) borders.add(t.getArea());
     }
 
     public void paintComponent(Graphics2D g) {

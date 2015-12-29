@@ -1,12 +1,14 @@
 package com.company;
 
 import java.awt.*;
+import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Territory {
     private List<Polygon> patches = new LinkedList<>();
+    private final Area area = new Area();
     private Color color; //color of the territory
     private int army; //number of army, negative numbers are for the computer, positive for the player
 
@@ -19,6 +21,10 @@ public class Territory {
         generateColor();
     }
 
+    public Area getArea() {
+        return area;
+    }
+
     private String name; //Name of the territory
     private Point capital; //Position of the capital
 
@@ -28,6 +34,7 @@ public class Territory {
 
     public Territory(List<Polygon> patches, String name, Point capital) {
         this.patches = patches;
+        for (Polygon p : patches) area.add(new Area(p));
         army = 0;
         this.name = name;
         this.capital = capital;

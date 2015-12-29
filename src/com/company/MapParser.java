@@ -3,7 +3,6 @@ package com.company;
 import com.sun.javaws.exceptions.InvalidArgumentException;
 
 import java.awt.*;
-import java.awt.geom.Area;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -56,30 +55,25 @@ public class MapParser {
 
         List<Continent> continentList = new LinkedList<>();
         for (Map.Entry<String, List<String>> entry : continents.entrySet()) {
-            Area continentBorder = new Area();
             List<Territory> territoryList = new LinkedList<>();
             for (String terrName : entry.getValue()) {
                 //for (Polygon terr : territories.get(terrName)) continentBorder.add(new Area(AffineTransform.getScaleInstance(1.1,1.1).createTransformedShape(terr)));
-                for (Polygon terr : territories.get(terrName)) continentBorder.add(new Area(terr));
                 Territory newTerritory = new Territory(territories.remove(terrName), terrName, capitals.remove(terrName));
                 territoryList.add(newTerritory);
 
                 territoryMap.put(terrName, newTerritory);
-
             }
-            continentList.add(new Continent(territoryList, continentBonus.get(entry.getKey()), continentBorder));
+            continentList.add(new Continent(territoryList, continentBonus.get(entry.getKey())));
         }
 
         List<Territory> territoryList = new LinkedList<>();
-        Area continentBorder = new Area();
         for (Map.Entry<String, List<Polygon>> entry : territories.entrySet()) {
             Territory newTerritory = new Territory(entry.getValue(), entry.getKey(), capitals.get(entry.getKey()));
             territoryList.add(newTerritory);
-            for (Polygon terr : entry.getValue()) continentBorder.add(new Area(terr));
 
             territoryMap.put(entry.getKey(), newTerritory);
         }
-        Continent restOfMap = new Continent(territoryList, 0, continentBorder);
+        Continent restOfMap = new Continent(territoryList, 0);
         continentList.add(restOfMap);
 
         List<Neighbors> neighbors = new LinkedList<>();
