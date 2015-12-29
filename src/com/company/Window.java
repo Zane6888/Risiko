@@ -6,11 +6,15 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Window extends JFrame {
-    public Window() {
-        //TODO Hier musst du den Speicherort der map halt �ndern
-        //TODO In der fertigen Version muss die Map dem Programm �bergeben werden
+    private static String DEFAULT_MAP = "maps/world.map";
+
+    public Window(String map) {
+        if (map == null || map.equals("")) {
+            System.out.println("No map specified, defaulting to: '" + DEFAULT_MAP + "'");
+            map = DEFAULT_MAP;
+        }
         try {
-            this.add(new Panel(new Scanner(new File("maps/world.map")).useDelimiter("\\Z").next()));
+            this.add(new Panel(new Scanner(new File(map)).useDelimiter("\\Z").next()));
         } catch (IOException e) {
             System.out.println("FEHLER: " + e.getMessage());
         }
