@@ -80,11 +80,7 @@ public class Territory {
     public void paintTerritory(Graphics2D g, boolean selected, boolean muted) {
         //If selected lighten up the color
         if (selected) {
-            int red = (int) (color.getRed() * 1.5f);
-            int green = (int) (color.getGreen() * 1.5f);
-            int blue = (int) (color.getBlue() * 1.5f);
-
-            g.setColor(new Color(red > 255 ? 255 : red, green > 255 ? 255 : green, blue > 255 ? 255 : blue));
+            g.setColor(Helper.multiplyColor(color, 1.5f));
         } else g.setColor(color);
 
         for (Polygon pol : patches) g.fillPolygon(pol);

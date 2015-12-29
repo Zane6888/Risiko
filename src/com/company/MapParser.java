@@ -140,7 +140,7 @@ public class MapParser {
 
 
         //Add the new data to the map
-        Polygon newPolygon = new Polygon(toIntArray(xCoords), toIntArray(yCoords), xCoords.size());
+        Polygon newPolygon = new Polygon(Helper.toIntArray(xCoords), Helper.toIntArray(yCoords), xCoords.size());
         if (territories.containsKey(name)) {
             territories.get(name).add(newPolygon);
         } else {
@@ -202,20 +202,6 @@ public class MapParser {
         //Parse the data into the maps
         continentBonus.put(name, bonus);
         continents.put(name, Arrays.asList(body));
-    }
-
-
-    /**
-     * Converts an List<Integer> to an int-Array and returns it
-     *
-     * @param list List<Integer> that should be converted
-     * @return An int-Array, containing the same values as the List<Integer> and has the same size
-     */
-    private static int[] toIntArray(List<Integer> list) {
-        int[] returnArray = new int[list.size()];
-        for (int i = 0; i < returnArray.length; i++)
-            returnArray[i] = list.get(i);
-        return returnArray;
     }
 
     /**
