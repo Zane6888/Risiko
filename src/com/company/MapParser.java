@@ -45,7 +45,7 @@ public class MapParser {
             } else if (line.startsWith("neighbors-of ")) {
                 neighborsOf(line, neighborList); //The string begins with the keyword "neighbors-of" and is parsed in the neighborsOf()-method
             } else {
-                if (line.equals("")) throw new InvalidArgumentException(new String[]{"Invalid line in map"});
+                if (!line.equals("")) throw new InvalidArgumentException(new String[]{"Invalid line in map"});
             }
         }
 
