@@ -6,6 +6,8 @@ import java.util.List;
 public class Helper {
 
     public static <T> T getRandom(List<T> l) {
+        if (l == null || l.size() == 0)
+            return null;
         int r = (int) (Math.random() * l.size());
         return l.get(r);
     }
