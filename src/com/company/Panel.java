@@ -155,13 +155,14 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     public void mouseClicked(MouseEvent me) {
         if (!errorOccurred) {
             java.util.List<Continent> continents = map.getContinents();
+            boolean repaint = false;
             for (Continent c : continents) {
                 if (c.mouseClicked(me.getX(), me.getY(), gameState)) {
                     Computer.move(gameState, map);
-                    this.repaint();
-                    break;
+                    repaint = true;
                 }
             }
+            if (repaint) repaint();
         }
     }
 

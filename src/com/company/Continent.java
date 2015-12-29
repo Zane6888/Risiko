@@ -9,7 +9,8 @@ import java.util.List;
 
 public class Continent {
     private List<Territory> territories = new LinkedList<>();
-    private Territory hoverTerritory = null;  //the territory that is currently hoverd with the mouse
+    private Territory hoverTerritory = null;  //the territory that is currently hovered with the mouse
+    private Territory selectedTerritory = null; //the territory that is currently selected
     private int bonus; //number of bonus army when the whole continent is owned by one player
     private Area borders; //combined area of all territories of the continent
 
@@ -36,7 +37,7 @@ public class Continent {
         if (borders != null) g.draw(borders);
 
         //Draw all  territories
-        for (Territory t : territories) t.paintTerritory(g, t == hoverTerritory);
+        for (Territory t : territories) t.paintTerritory(g, t == hoverTerritory, t == selectedTerritory);
 
         //Draw the capital of each territory
         for (Territory t : territories) t.paintCapitals(g);
@@ -57,22 +58,37 @@ public class Continent {
             if (gameState.currentPhase == GamePhase.CLAIM) {
                 //Iterate throug all territories to check if mouse is within their borders
                 for (Territory t : territories) {
-                    if (t.getArmy() == 0 && t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
-                        if (hoverTerritory != t) {
-                            hoverTerritory = t; //correct territory is found and set as hoverTerritory
-                            return true;
-                        } else return false;  //return false because now repaint is needed
+                    if (t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
+                        if (t.getArmy() == 0) {
+                            if (hoverTerritory != t) {
+                                hoverTerritory = t; //correct territory is found and set as hoverTerritory
+                                return true;
+                            } else return false;  //return false because no repaint is needed
+                        } else {
+                            if (hoverTerritory != null) {
+                                hoverTerritory = null; //no territoriy in this continent should be highlighted
+                                return true;
+                            } else return false;
+                        }
                     }
                 }
                 return true;
-            } else if (gameState.currentPhase == GamePhase.REINFORCE) {
+            } else if (gameState.currentPhase == GamePhase.REINFORCE || gameState.currentPhase == GamePhase.ATTACK) {
                 //Iterate throug all territories to check if mouse is within their borders
                 for (Territory t : territories) {
-                    if (t.getArmy() > 0 && t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
-                        if (hoverTerritory != t) {
-                            hoverTerritory = t; //correct territory is found and set as hoverTerritory
-                            return true;
-                        } else return false;  //return false because now repaint is needed
+                    if (t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
+                        if (t.getArmy() > 0) {
+                            if (hoverTerritory != t) {
+                                hoverTerritory = t; //correct territory is found and set as hoverTerritory
+                                return true;
+                            } else return false;  //return false because no repaint is needed
+                        } else {
+                            if (hoverTerritory != null) {
+                                hoverTerritory = null; //no territoriy in this continent should be highlighted
+                                return true;
+                            } else return false;
+                        }
+
                     }
                 }
                 return true;
@@ -119,22 +135,31 @@ public class Continent {
     public boolean mouseClicked(int x, int y, GameState gameState) {
         if (borders.contains(x, y)) {
             if (gameState.currentPhase == GamePhase.CLAIM) {
-                for (Territory t : territories) {
-                    if (t.getArmy() == 0 && t.contains(x, y)) {
-                        t.setArmy(t.getArmy() + 1);
-                        isMonopol();
-                        hoverTerritory = null;
-                        gameState.currentPhase = GamePhase.CLAIMComputer;
-                        return true;
-                    }
+                if (hoverTerritory != null && hoverTerritory.getArmy() == 0) {
+                    hoverTerritory.setArmy(hoverTerritory.getArmy() + 1);
+                    isMonopol();
+                    hoverTerritory = null;
+                    gameState.currentPhase = GamePhase.CLAIMComputer;
+                    return true;
                 }
             } else if (gameState.currentPhase == GamePhase.REINFORCE) {
-                if (hoverTerritory.getArmy() > 0) {
+                if (hoverTerritory != null && hoverTerritory.getArmy() > 0) {
                     hoverTerritory.setArmy(hoverTerritory.getArmy() + 1);
                     gameState.armyPlayer--;
                     if (gameState.armyPlayer <= 0) gameState.currentPhase = GamePhase.REINFORCEComputer;
                     return true;
                 }
+            } else if (gameState.currentPhase == GamePhase.ATTACK) {
+                if (hoverTerritory != null && hoverTerritory.getArmy() > 0) {
+                    selectedTerritory = hoverTerritory;
+                    return true;
+                }
+            }
+        } else {
+            if (selectedTerritory == null) return false;
+            else {
+                selectedTerritory = null;
+                return true;
             }
         }
         return false;
