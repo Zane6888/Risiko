@@ -12,7 +12,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Collections;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
     private static final int height = 650, width = 1250; //width and height of the window
@@ -112,7 +111,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             case CLAIMComputer:
                 currentPhase = "CLAIM";
                 break;
+            case REINFORCE:
+            case REINFORCEComputer:
+                currentPhase = "REINFORCE";
+                break;
             case ATTACK:
+            case ATTACKComputer:
                 currentPhase = "ATTACK";
                 break;
         }
@@ -153,29 +157,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             java.util.List<Continent> continents = map.getContinents();
             for (Continent c : continents) {
                 if (c.mouseClicked(me.getX(), me.getY(), gameState)) {
+                    Computer.move(gameState, map);
                     this.repaint();
                     break;
                 }
-
             }
-
-            if (gameState.currentPhase == GamePhase.CLAIMComputer) {
-                Collections.shuffle(continents);
-                gameState.currentPhase = GamePhase.ATTACK;
-                for (Continent c : continents) {
-                    if (c.conquer()) {
-                        gameState.currentPhase = GamePhase.CLAIM;
-                        break;
-                    }
-                }
-                gameState.armyComputer = 0;
-                gameState.armyPlayer = 0;
-                for (Continent c : continents) c.calculateArmies(gameState);
-                gameState.armyComputer /= 3;
-                gameState.armyPlayer /= 3;
-            }
-
-            this.repaint();
         }
     }
 

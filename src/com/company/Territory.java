@@ -17,8 +17,10 @@ public class Territory {
     }
 
     public void setArmy(int army) {
-        this.army = army;
-        generateColor();
+        if (Math.signum(army) != Math.signum(this.army)) { //update Color iff possession has changed
+            this.army = army;
+            generateColor();
+        } else this.army = army;
     }
 
     public Area getArea() {

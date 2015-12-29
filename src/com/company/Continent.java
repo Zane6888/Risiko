@@ -52,9 +52,9 @@ public class Continent {
      * @return Returns true iff the panel has to be redrawn
      */
     public boolean mouseMoved(int x, int y, GameState gameState) {
-        if (gameState.currentPhase == GamePhase.CLAIM) {
-            if (borders.contains(x, y)) {  //if the mouse is within the borders of the continent
 
+        if (borders.contains(x, y)) {  //if the mouse is within the borders of the continent
+            if (gameState.currentPhase == GamePhase.CLAIM) {
                 //Iterate throug all territories to check if mouse is within their borders
                 for (Territory t : territories) {
                     if (t.getArmy() == 0 && t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
@@ -65,16 +65,28 @@ public class Continent {
                     }
                 }
                 return true;
-            } else {
-                //the mouse has left the territory
-                if (hoverTerritory != null) {
-                    //hoverTerritory is not null therefore it has to be set null and the Panel has to be redrawn
-                    hoverTerritory = null;
-                    return true;
+            } else if (gameState.currentPhase == GamePhase.REINFORCE) {
+                //Iterate throug all territories to check if mouse is within their borders
+                for (Territory t : territories) {
+                    if (t.getArmy() > 0 && t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
+                        if (hoverTerritory != t) {
+                            hoverTerritory = t; //correct territory is found and set as hoverTerritory
+                            return true;
+                        } else return false;  //return false because now repaint is needed
+                    }
                 }
-                return false;
+                return true;
             }
+        } else {
+            //the mouse has left the territory
+            if (hoverTerritory != null) {
+                //hoverTerritory is not null therefore it has to be set null and the Panel has to be redrawn
+                hoverTerritory = null;
+                return true;
+            }
+            return false;
         }
+
         return false;
     }
 
@@ -105,8 +117,8 @@ public class Continent {
      * @return returns true iff Panel has to be redrawn
      */
     public boolean mouseClicked(int x, int y, GameState gameState) {
-        if (gameState.currentPhase == GamePhase.CLAIM) {
-            if (borders.contains(x, y)) {
+        if (borders.contains(x, y)) {
+            if (gameState.currentPhase == GamePhase.CLAIM) {
                 for (Territory t : territories) {
                     if (t.getArmy() == 0 && t.contains(x, y)) {
                         t.setArmy(t.getArmy() + 1);
@@ -115,6 +127,13 @@ public class Continent {
                         gameState.currentPhase = GamePhase.CLAIMComputer;
                         return true;
                     }
+                }
+            } else if (gameState.currentPhase == GamePhase.REINFORCE) {
+                if (hoverTerritory.getArmy() > 0) {
+                    hoverTerritory.setArmy(hoverTerritory.getArmy() + 1);
+                    gameState.armyPlayer--;
+                    if (gameState.armyPlayer <= 0) gameState.currentPhase = GamePhase.REINFORCEComputer;
+                    return true;
                 }
             }
         }
@@ -136,6 +155,32 @@ public class Continent {
             }
         }
         return false;
+    }
+
+    /**
+     * Reinforces a random territory in the possession of the computer
+     *
+     * @return returns true iff reinforcement was successful
+     */
+    public boolean reinforce() {
+        Collections.shuffle(territories);
+        for (Territory t : territories) {
+            if (t.getArmy() < 0) {
+                t.setArmy(t.getArmy() - 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true iff all territories are conquered by either of the opponents
+     */
+    public boolean isTaken() {
+        for (Territory t : territories) {
+            if (t.getArmy() == 0) return false;
+        }
+        return true;
     }
 
     /**
