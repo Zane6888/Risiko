@@ -43,6 +43,10 @@ public class Territory {
         } else this.army = army;
     }
 
+    public void addArmy(int army) {
+        this.army += this.army < 0 ? -army : army;
+    }
+
     public Area getArea() {
         return area;
     }
