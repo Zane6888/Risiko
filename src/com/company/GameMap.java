@@ -1,7 +1,9 @@
 package com.company;
 
 import java.awt.*;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -39,5 +41,11 @@ public class GameMap {
             if (c.containsTerritory(p))
                 return true;
         return false;
+    }
+
+    public List<Territory> getNeighbors(Territory t, Predicate<Territory> p) {
+        Set<Territory> l = neighbors.stream().filter(n -> n.neighborOne == t).map(n -> n.neighborTwo).filter(p).collect(Collectors.toSet());
+        l.addAll(neighbors.stream().filter(n -> n.neighborTwo == t).map(n -> n.neighborOne).filter(p).collect(Collectors.toList()));
+        return new LinkedList<>(l);
     }
 }
