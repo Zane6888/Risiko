@@ -1,6 +1,5 @@
 package com.company;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Computer {
@@ -16,23 +15,13 @@ public class Computer {
         List<Continent> continents = gameMap.getContinents();
         switch (gameState.currentPhase) {
             case CLAIMComputer:
-                Collections.shuffle(continents);
-                gameState.currentPhase = GamePhase.REINFORCE;
-                for (Continent c : continents) {
-                    if (c.conquer()) {
-                        //Its now the players turn
-                        gameState.currentPhase = GamePhase.CLAIM;
+                gameMap.getRandomTerritory(Territory.UNCLAIMED).setArmy(-1);
 
-                        //Check if the whole map has been claimed already and set gamePhase accordingly
-                        boolean mapIsFull = true;
-                        for (Continent con : continents) {
-                            mapIsFull &= con.isTaken();
-                        }
-                        if (mapIsFull) gameState.currentPhase = GamePhase.REINFORCE;
+                if (!gameMap.containsTerritory(Territory.UNCLAIMED))
+                    gameState.currentPhase = GamePhase.REINFORCE;
+                else
+                    gameState.currentPhase = GamePhase.CLAIM;
 
-                        break;
-                    }
-                }
                 gameState.armyComputer = 0;
                 gameState.armyPlayer = 0;
                 for (Continent c : continents) c.calculateArmies(gameState);
@@ -41,10 +30,8 @@ public class Computer {
 
                 return true;
             case REINFORCEComputer: {
-                while (gameState.armyComputer > 0) {
-                    Collections.shuffle(continents);
-                    if (continents.get(0).reinforce()) gameState.armyComputer--;
-                }
+                for (; gameState.armyComputer > 0; gameState.armyComputer--)
+                    gameMap.getRandomTerritory(Territory.OWNED_COMP).addArmy(1);
                 gameState.currentPhase = GamePhase.ATTACK;
                 break;
             }

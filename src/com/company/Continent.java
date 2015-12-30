@@ -2,7 +2,6 @@ package com.company;
 
 import java.awt.*;
 import java.awt.geom.Area;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -161,39 +160,6 @@ public class Continent {
             if (selectedTerritory == null) return false;
             else {
                 selectedTerritory = null;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * The Computer takes a random territory that has not been conquered yet
-     *
-     * @return returns true if there are unclaimed territories left, false otherwise
-     */
-    public boolean conquer() {
-        Collections.shuffle(territories);
-        for (Territory t : territories) {
-            if (t.getArmy() == 0) {
-                t.setArmy(-1);
-                isMonopol();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Reinforces a random territory in the possession of the computer
-     *
-     * @return returns true iff reinforcement was successful
-     */
-    public boolean reinforce() {
-        Collections.shuffle(territories);
-        for (Territory t : territories) {
-            if (t.getArmy() < 0) {
-                t.setArmy(t.getArmy() - 1);
                 return true;
             }
         }
