@@ -110,19 +110,9 @@ public class Continent {
     /**
      * Updates the variables isMonopolPlayer and isMonopolComp
      */
-    private void isMonopol() {
-        isMonopolPlayer = true;
-        isMonopolComp = true;
-        for (Territory t : territories) {
-            if (t.getArmy() < 0) {
-                isMonopolPlayer = false;
-            } else if (t.getArmy() > 0) {
-                isMonopolComp = false;
-            } else {
-                isMonopolComp = false;
-                isMonopolPlayer = false;
-            }
-        }
+    private void updateMonopol() {
+        isMonopolPlayer = countTerritories(Territory.OWNED_PLAYER) == territories.size();
+        isMonopolComp = !isMonopolPlayer && countTerritories(Territory.OWNED_COMP) == territories.size();
     }
 
     /**
@@ -138,7 +128,7 @@ public class Continent {
             if (gameState.currentPhase == GamePhase.CLAIM) {
                 if (hoverTerritory != null && hoverTerritory.getArmy() == 0) {
                     hoverTerritory.setArmy(hoverTerritory.getArmy() + 1);
-                    isMonopol();
+                    updateMonopol();
                     hoverTerritory = null;
                     gameState.currentPhase = GamePhase.CLAIMComputer;
                     return true;
@@ -194,28 +184,10 @@ public class Continent {
      * @param gameState the current gameState that where the new values will be added
      */
     public void calculateArmies(GameState gameState) {
-        int numberTerrPlayer = 0, numberTerrComp = 0;
-
-        //Iterate trough the territories to check wether all are possesed by own opponent and calculate the number of
-        //territories for each opponent
-        boolean monopolPlayer = true, monopolComp = true;
-        for (Territory t : territories) {
-            if (t.getArmy() < 0) {
-                numberTerrComp++;
-                monopolPlayer = false;
-            } else if (t.getArmy() > 0) {
-                numberTerrPlayer++;
-                monopolComp = false;
-            } else {
-                monopolComp = false;
-                monopolPlayer = false;
-            }
-        }
-
-        gameState.armyPlayer += numberTerrPlayer;
-        gameState.armyComputer += numberTerrComp;
-        if (monopolPlayer) gameState.armyPlayer += bonus * 3;
-        else if (monopolComp) gameState.armyComputer += bonus * 3;
+        gameState.armyPlayer += countTerritories(Territory.OWNED_PLAYER);
+        gameState.armyComputer += countTerritories(Territory.OWNED_COMP);
+        if (isMonopolPlayer) gameState.armyPlayer += bonus * 3;
+        else if (isMonopolComp) gameState.armyComputer += bonus * 3;
 
     }
 
