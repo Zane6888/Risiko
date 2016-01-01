@@ -1,0 +1,38 @@
+patch-of TerritoryOne 10 10 20 10 20 20 10 20
+patch-of TerritoryTwo 1240 10 1230 10 1230 20 1240 20
+patch-of TerritoryThree 1240 540 1230 540 1230 530 1240 530
+patch-of TerritoryFour  10  540 20 540 20 530 10 530
+patch-of TerritoryFive 10 300 20 300 20 290 10 290
+patch-of TerritorySix 1240 300 1230 300 1230 290 1240 290
+patch-of TerritorySeven 630 10 620 10 620 20 630 20
+patch-of TerritoryEight 630 540 620 540 620 530 630 530
+patch-of TerritoryNine 630 340 620 340 620 330 630 330
+patch-of TerritoryTen 630 260 620 260 620 250 630 250
+patch-of TerritoryEleven 590 300 580 300 580 290 590 290
+patch-of TerritoryTwelve 670 300 660 300 660 290 670 290
+patch-of TerritoryThirteen 100 100 100 200 200 200 200 100
+patch-of TerritoryFourteen 100 550 100 450 200 450 200 550
+patch-of TerritoryFifteen 1150 100 1150 200 1050 200 1050 100
+patch-of TerritorySixteen 1150 550 1150 450 1050 450 1050 550
+capital-of TerritoryOne 15 15
+capital-of TerritoryTwo 1235 15
+capital-of TerritoryThree 1235 535
+capital-of TerritoryFour 15 535
+capital-of TerritoryFive 15 295
+capital-of TerritorySix 1235 295
+capital-of TerritorySeven 625 15
+capital-of TerritoryEight 625 535
+capital-of TerritoryNine 625 335
+capital-of TerritoryTen 625 255
+capital-of TerritoryEleven 585 295
+capital-of TerritoryTwelve 665 295
+capital-of TerritoryThirteen 150 150
+capital-of TerritoryFourteen 150 500
+capital-of TerritoryFifteen 1100 150
+capital-of TerritorySixteen 1100 500
+neighbors-of TerritoryOne : TerritoryThree
+neighbors-of TerritoryTwo : TerritoryFour
+neighbors-of TerritoryFive : TerritorySix
+neighbors-of TerritorySeven : TerritoryEight
+neighbors-of TerritoryNine : TerritoryTen
+neighbors-of TerritoryEleven : TerritoryTwelve
