@@ -43,6 +43,10 @@ public class GameMap {
         return false;
     }
 
+    public int countTerritories(Predicate<Territory> p) {
+        return continents.stream().mapToInt(c -> c.countTerritories(p)).sum();
+    }
+
     public List<Territory> getNeighbors(Territory t, Predicate<Territory> p) {
         Set<Territory> l = neighbors.stream().filter(n -> n.neighborOne == t).map(n -> n.neighborTwo).filter(p).collect(Collectors.toSet());
         l.addAll(neighbors.stream().filter(n -> n.neighborTwo == t).map(n -> n.neighborOne).filter(p).collect(Collectors.toList()));

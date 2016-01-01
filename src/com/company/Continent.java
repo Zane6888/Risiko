@@ -174,6 +174,10 @@ public class Continent {
         return territories.stream().filter(p).findAny().isPresent();
     }
 
+    public int countTerritories(Predicate<Territory> p) {
+        return (int) territories.stream().filter(p).count();
+    }
+
     /**
      * Returns true iff all territories are conquered by either of the opponents
      */
