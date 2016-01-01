@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileInputStream;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
-    private static final int height = 650, width = 1250; //width and height of the window
 
     private GameMap map;
 
@@ -121,7 +120,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 break;
         }
         double stringWidth = g.getFontMetrics().getStringBounds(currentPhase, g).getWidth();
-        g.drawString(currentPhase, (int) (width / 2f - stringWidth / 2), 27);
+        g.drawString(currentPhase, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 27);
     }
 
     private void paintBackground(Graphics2D g) {

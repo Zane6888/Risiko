@@ -12,9 +12,6 @@ import java.util.List;
 
 public class MapParser {
 
-    private static final int height = 600, width = 1000;  //width and height of the map after it has been tilted
-    private static final int mapHeight = 650, mapWidth = 1250; //width and height of the map and also the window
-
     /**
      * Parses a Map in the given format and returns a GameMap object, containing all the information of the String
      *
@@ -130,7 +127,7 @@ public class MapParser {
         //Iterate through all the coordinats and save it in the xCoords/yCoords lists
         while (i < words.length - 1) {
             Point point = new Point(Integer.valueOf(words[i]), Integer.valueOf(words[i + 1]));
-            point = translatePoint(point, height, width); //translate the point to generate the 3D effect
+            point = translatePoint(point, GameConstants.MAP_HEIGHT, GameConstants.MAP_WIDTH); //translate the point to generate the 3D effect
             xCoords.add(point.x);
             yCoords.add(point.y);
             i += 2;
@@ -174,7 +171,7 @@ public class MapParser {
         //The rest of the string are the x and y coordinats and are added parsed into a new point
         Point capital = new Point(Integer.valueOf(words[i]), Integer.valueOf(words[i + 1]));
 
-        capitals.put(name, translatePoint(capital, height, width)); //add the new capital to the map
+        capitals.put(name, translatePoint(capital, GameConstants.MAP_HEIGHT, GameConstants.MAP_WIDTH)); //add the new capital to the map
     }
 
     /**
@@ -214,9 +211,9 @@ public class MapParser {
      */
     private static Point translatePoint(Point point, int height, int width) {
         Point ret = new Point();
-        int temp = (int) ((width / 2f) + ((mapWidth / 2 - width / 2f) * point.y / (float) mapHeight));
-        ret.x = map(point.x, 0, mapWidth, mapWidth / 2 - temp, mapWidth / 2 + temp);
-        ret.y = map(point.y, 0, mapHeight, mapHeight - height, mapHeight);
+        int temp = (int) ((width / 2f) + ((GameConstants.WINDOW_WIDTH / 2 - width / 2f) * point.y / (float) GameConstants.WINDOW_HEIGHT));
+        ret.x = map(point.x, 0, GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_WIDTH / 2 - temp, GameConstants.WINDOW_WIDTH / 2 + temp);
+        ret.y = map(point.y, 0, GameConstants.WINDOW_HEIGHT, GameConstants.WINDOW_HEIGHT - height, GameConstants.WINDOW_HEIGHT);
         return ret;
 
     }

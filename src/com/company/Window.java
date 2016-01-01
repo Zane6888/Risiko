@@ -18,7 +18,7 @@ public class Window extends JFrame {
         } catch (IOException e) {
             System.out.println("FEHLER: " + e.getMessage());
         }
-        this.setSize(1250, 650);
+        this.setSize(GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_HEIGHT);
         this.setTitle("All those territories");
         this.setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

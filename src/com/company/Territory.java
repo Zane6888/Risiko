@@ -3,7 +3,6 @@ package com.company;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -18,20 +17,7 @@ public class Territory {
     private Color color; //color of the territory
     private int army; //number of army, negative numbers are for the computer, positive for the player
 
-    private static TexturePaint hatchedPaint = initializeHatchedPaint();
 
-    private static TexturePaint initializeHatchedPaint() {
-        BufferedImage bufferedImage =
-                new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2 = bufferedImage.createGraphics();
-        g2.setColor(new Color(0.15f, 0.15f, 0.15f));
-        g2.setStroke(new BasicStroke(1.5f));
-        g2.drawLine(0, 10, 10, 0); // /
-
-        Rectangle2D rect = new Rectangle2D.Double(0, 0, 10, 10);
-        return new TexturePaint(bufferedImage, rect);
-    }
 
     public int getArmy() {
         return army;
@@ -95,12 +81,12 @@ public class Territory {
         for (Polygon pol : patches) g.fillPolygon(pol);
 
         if (muted) {
-            g.setPaint(hatchedPaint);
+            g.setPaint(GameConstants.HATCHED_PAINT);
             for (Polygon pol : patches) g.fillPolygon(pol);
         }
 
         //Draw the border of the territory
-        g.setColor(new Color(60, 60, 60));
+        g.setColor(GameConstants.BORDER_COLOR_TERRITORY);
         g.setStroke(new BasicStroke(1.5f));
         for (Polygon pol : patches) g.drawPolygon(pol);
 
