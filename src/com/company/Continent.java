@@ -28,10 +28,10 @@ public class Continent {
         //draws a yellow border arround the continent if it is owned by a single opponent
         //a black border is drawn otherwise
         if (isMonopolComp || isMonopolPlayer) {
-            g.setColor(Color.YELLOW);
+            g.setColor(GameConstants.BORDER_COLOR_MONOPOL);
             g.setStroke(new BasicStroke(7));
         } else {
-            g.setColor(new Color(30, 30, 30));
+            g.setColor(GameConstants.BORDER_COLOR_CONTINENT);
             g.setStroke(new BasicStroke(5));
         }
 
