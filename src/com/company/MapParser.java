@@ -212,22 +212,11 @@ public class MapParser {
     private static Point translatePoint(Point point, int height, int width) {
         Point ret = new Point();
         int temp = (int) ((width / 2f) + ((GameConstants.WINDOW_WIDTH / 2 - width / 2f) * point.y / (float) GameConstants.WINDOW_HEIGHT));
-        ret.x = map(point.x, 0, GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_WIDTH / 2 - temp, GameConstants.WINDOW_WIDTH / 2 + temp);
-        ret.y = map(point.y, 0, GameConstants.WINDOW_HEIGHT, GameConstants.WINDOW_HEIGHT - height, GameConstants.WINDOW_HEIGHT);
+        ret.x = Helper.map(point.x, 0, GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_WIDTH / 2 - temp, GameConstants.WINDOW_WIDTH / 2 + temp);
+        ret.y = Helper.map(point.y, 0, GameConstants.WINDOW_HEIGHT, GameConstants.WINDOW_HEIGHT - height, GameConstants.WINDOW_HEIGHT);
         return ret;
 
     }
 
-    /**
-     * Maps a Float f, that is in the range of in_min and in_max, to an range of out_min and out_max
-     *
-     * @param f       the value that is to map
-     * @param in_min  Minimum of the input range
-     * @param in_max  maximum of the input range
-     * @param out_min minimum of the output range
-     * @param out_max maximum of the output range
-     */
-    public static int map(float f, float in_min, float in_max, float out_min, float out_max) {
-        return (int) ((f - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
-    }
+
 }

@@ -134,9 +134,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         g.setPaint(oldPaint);
 
         //Draw a blue grid
-        //TODO Derzeit stimmt das grid nicht zu hundert Prozent mit der map �berein da das Grid schon bei x=0 anf�ngt, die Map erst weiter unten
         g.setColor(new Color(0, 149, 237));
-        for (int x = -200; x < 1450; x += 50) g.drawLine(x, 650, MapParser.map(x, 0, 1250, 150, 1150), 0);
+        for (int x = -200; x < 1450; x += 50) g.drawLine(x, 650, Helper.map(x, 0, 1250, 150, 1150), 0);
         for (int y = 46; y < 650; y += 46) g.drawLine(0, y, 1250, y);
 
 
