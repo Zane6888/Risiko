@@ -135,8 +135,13 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         //Draw a blue grid
         g.setColor(new Color(0, 149, 237));
-        for (int x = -200; x < 1450; x += 50) g.drawLine(x, 650, Helper.map(x, 0, 1250, 150, 1150), 0);
-        for (int y = 46; y < 650; y += 46) g.drawLine(0, y, 1250, y);
+        //Vertical lines
+        int xSize = (int) ((((GameConstants.WINDOW_WIDTH - GameConstants.MAP_WIDTH) / 2f) / GameConstants.MAP_HEIGHT) * GameConstants.WINDOW_HEIGHT);
+        for (int x = 0; x < GameConstants.WINDOW_WIDTH; x += 50)
+            g.drawLine(x, GameConstants.WINDOW_HEIGHT, Helper.map(x, 0, GameConstants.WINDOW_WIDTH, xSize, GameConstants.WINDOW_WIDTH - xSize), 0);
+        //Horizontal lines
+        int ySize = GameConstants.MAP_HEIGHT * 50 / GameConstants.WINDOW_HEIGHT;
+        for (int y = ySize; y < 650; y += ySize) g.drawLine(0, y, 1250, y);
 
 
     }
