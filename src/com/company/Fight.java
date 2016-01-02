@@ -69,7 +69,7 @@ public class Fight {
             throw new IllegalArgumentException("Territories have to be claimed by different parties, you can not be the Austrian military");
 
         int armyA = Math.min(Math.abs(atk.getArmy()) - 1, 3);
-        int armyD = Math.min(-def.getArmy(), 2);
+        int armyD = Math.min(Math.abs(def.getArmy()), 2);
 
         diceAtk = new int[armyA];
 
