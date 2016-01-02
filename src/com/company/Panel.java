@@ -22,6 +22,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private Territory hoverTerritory;
     private Territory selectedTerritory;
 
+    private Fight lastFight;
+
     private BufferedImage hud; //a buffered image for the HUD
 
     private Font mainFont;
@@ -180,14 +182,31 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                         if (Territory.OWNED_PLAYER.test(hoverTerritory))
                             selectedTerritory = hoverTerritory;
                         else {
-                            Fight fight = new Fight(selectedTerritory, hoverTerritory);
+                            lastFight = new Fight(selectedTerritory, hoverTerritory);
                             //TODO: maybe add some fancy popup/window displaying the fight
-                            //TODO: implement army Follow 
-                            fight.apply();
-                            selectedTerritory = null;
-                            gameState.currentPhase = GamePhase.FOLLOW;
+                            if (lastFight.apply()) {
+                                selectedTerritory = hoverTerritory;
+                                gameState.currentPhase = GamePhase.FOLLOW;
+                            } else {
+                                selectedTerritory = null;
+                                gameState.currentPhase = GamePhase.MOVE;
+                            }
                         }
                         break;
+                    case FOLLOW:
+                        if (hoverTerritory != selectedTerritory)
+                            break;
+                        if (lastFight.getAtk().getArmy() > 1 && me.getButton() == MouseEvent.BUTTON1) {
+                            lastFight.getAtk().addArmy(-1);
+                            lastFight.getDef().addArmy(1);
+                        }
+                        if (lastFight.getDef().getArmy() > lastFight.getOccupyingArmy()
+                                && me.getButton() == MouseEvent.BUTTON3) {
+                            lastFight.getAtk().addArmy(1);
+                            lastFight.getDef().addArmy(-1);
+                        }
+                        break;
+
                 }
             } else
                 selectedTerritory = null;
@@ -215,6 +234,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     else
                         hoverable = Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER)
                                 .and(t -> map.getNeighbors(t, Territory.OWNED_COMP).size() > 0);
+                    break;
+                case FOLLOW:
+                    hoverable = t -> t == selectedTerritory;
+                    break;
             }
 
             Territory old = hoverTerritory;
