@@ -31,4 +31,6 @@ public class GameConstants {
         Rectangle2D rect = new Rectangle2D.Double(0, 0, 10, 10);
         return new TexturePaint(bufferedImage, rect);
     }
+
+    public static final String DEFAULT_MAP = "maps/world.map";
 }

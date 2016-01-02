@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Window extends JFrame {
-    private static String DEFAULT_MAP = "maps/world.map";
-
     public Window(String map) {
         if (map == null || map.equals("")) {
-            System.out.println("No map specified, defaulting to: '" + DEFAULT_MAP + "'");
-            map = DEFAULT_MAP;
+            System.out.println("No map specified, defaulting to: '" + GameConstants.DEFAULT_MAP + "'");
+            map = GameConstants.DEFAULT_MAP;
         }
         try {
             this.add(new Panel(new Scanner(new File(map)).useDelimiter("\\Z").next()));
