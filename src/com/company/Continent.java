@@ -24,7 +24,7 @@ public class Continent {
         for (Territory t : territories) borders.add(t.getArea());
     }
 
-    public void paintComponent(Graphics2D g) {
+    public void paintComponent(Graphics2D g, Territory hoverTerritory, Territory selectedTerritory) {
         //draws a yellow border arround the continent if it is owned by a single opponent
         //a black border is drawn otherwise
         if (isMonopolComp || isMonopolPlayer) {
@@ -46,114 +46,26 @@ public class Continent {
     }
 
     /**
-     * Takes all the updates necessary when the mouse has been moved
+     * Searches for the Territory occupying the point (x,y)
      *
-     * @param x         x position of the mouse
-     * @param y         y position of the mouse
-     * @param gameState the current GameState to take the right actions
-     * @return Returns true iff the panel has to be redrawn
+     * @param x         x coordinate
+     * @param y         y coordinate
+     * @return The Territory under the point (x,y) or null if no such Territory is found
      */
-    public boolean mouseMoved(int x, int y, GameState gameState) {
-
-        if (borders.contains(x, y)) {  //if the mouse is within the borders of the continent
-            if (gameState.currentPhase == GamePhase.CLAIM) {
-                //Iterate throug all territories to check if mouse is within their borders
-                for (Territory t : territories) {
-                    if (t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
-                        if (t.getArmy() == 0) {
-                            if (hoverTerritory != t) {
-                                hoverTerritory = t; //correct territory is found and set as hoverTerritory
-                                return true;
-                            } else return false;  //return false because no repaint is needed
-                        } else {
-                            if (hoverTerritory != null) {
-                                hoverTerritory = null; //no territoriy in this continent should be highlighted
-                                return true;
-                            } else return false;
-                        }
-                    }
-                }
-                return true;
-            } else if (gameState.currentPhase == GamePhase.REINFORCE || gameState.currentPhase == GamePhase.ATTACK) {
-                //Iterate throug all territories to check if mouse is within their borders
-                for (Territory t : territories) {
-                    if (t.contains(x, y)) { //if the territory is not conquered yet and the mouse is within its borders
-                        if (t.getArmy() > 0) {
-                            if (hoverTerritory != t) {
-                                hoverTerritory = t; //correct territory is found and set as hoverTerritory
-                                return true;
-                            } else return false;  //return false because no repaint is needed
-                        } else {
-                            if (hoverTerritory != null) {
-                                hoverTerritory = null; //no territoriy in this continent should be highlighted
-                                return true;
-                            } else return false;
-                        }
-
-                    }
-                }
-                return true;
-            }
-        } else {
-            //the mouse has left the territory
-            if (hoverTerritory != null) {
-                //hoverTerritory is not null therefore it has to be set null and the Panel has to be redrawn
-                hoverTerritory = null;
-                return true;
-            }
-            return false;
-        }
-
-        return false;
+    public Territory findTerritory(int x, int y) {
+        if (borders.contains(x, y))   //if the mouse is within the borders of the continent
+            for (Territory t : territories)
+                if (t.contains(x, y))
+                    return t;
+        return null;
     }
 
     /**
      * Updates the variables isMonopolPlayer and isMonopolComp
      */
-    private void updateMonopol() {
+    public void updateMonopol() {
         isMonopolPlayer = countTerritories(Territory.OWNED_PLAYER) == territories.size();
         isMonopolComp = !isMonopolPlayer && countTerritories(Territory.OWNED_COMP) == territories.size();
-    }
-
-    /**
-     * taks all the updates necessary when the mouse has been clicked
-     *
-     * @param x         x position of the mouse
-     * @param y         y position of the mouse
-     * @param gameState current GameState
-     * @return returns true iff Panel has to be redrawn
-     */
-    public boolean mouseClicked(int x, int y, GameState gameState) {
-        if (borders.contains(x, y)) {
-            if (gameState.currentPhase == GamePhase.CLAIM) {
-                if (hoverTerritory != null && hoverTerritory.getArmy() == 0) {
-                    hoverTerritory.setArmy(hoverTerritory.getArmy() + 1);
-                    updateMonopol();
-                    hoverTerritory = null;
-                    gameState.currentPhase = GamePhase.CLAIMComputer;
-                    return true;
-                }
-            } else if (gameState.currentPhase == GamePhase.REINFORCE) {
-                if (hoverTerritory != null && hoverTerritory.getArmy() > 0) {
-                    hoverTerritory.setArmy(hoverTerritory.getArmy() + 1);
-                    gameState.armyPlayer--;
-                    if (gameState.armyPlayer <= 0) gameState.currentPhase = GamePhase.REINFORCEComputer;
-                    return true;
-                }
-            } else if (gameState.currentPhase == GamePhase.ATTACK) {
-                if (hoverTerritory != null && hoverTerritory.getArmy() > 0) {
-                    selectedTerritory = hoverTerritory;
-                    return true;
-                }
-            }
-        } else {
-            if (selectedTerritory == null) return false;
-            else {
-                selectedTerritory = null;
-                return true;
-            }
-        }
-        return false;
     }
 
     public Territory getRandomTerritory(Predicate<Territory> p) {

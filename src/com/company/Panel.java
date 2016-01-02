@@ -12,12 +12,15 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.function.Predicate;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
 
     private GameMap map;
 
     private GameState gameState; //current game state
+    private Territory hoverTerritory;
+    private Territory selectedTerritory;
 
     private BufferedImage hud; //a buffered image for the HUD
 
@@ -82,7 +85,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         paintBackground(g2);
 
         if (!errorOccurred) {
-            map.paint(g2);
+            map.paint(g2, hoverTerritory, selectedTerritory);
             paintHUD(g2);
         }
 
@@ -153,28 +156,59 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     public void mouseClicked(MouseEvent me) {
         if (!errorOccurred) {
-            java.util.List<Continent> continents = map.getContinents();
-            boolean repaint = false;
-            for (Continent c : continents) {
-                if (c.mouseClicked(me.getX(), me.getY(), gameState)) {
-                    Computer.move(gameState, map);
-                    repaint = true;
+            if (hoverTerritory != null) {
+                switch (gameState.currentPhase) {
+                    case CLAIM:
+                        hoverTerritory.setArmy(1);
+                        map.updateMonopol(hoverTerritory);
+                        gameState.currentPhase = GamePhase.CLAIMComputer;
+                        break;
+                    case REINFORCE:
+                        hoverTerritory.addArmy(1);
+                        gameState.armyPlayer--;
+                        if (gameState.armyPlayer <= 0) gameState.currentPhase = GamePhase.REINFORCEComputer;
+                        break;
+                    case ATTACK:
+                        if (Territory.OWNED_PLAYER.test(hoverTerritory))
+                            selectedTerritory = hoverTerritory;
+                        else {
+                            //TODO:   implement Fight
+                        }
+                        break;
                 }
-            }
-            if (repaint) repaint();
+            } else
+                selectedTerritory = null;
+
+            Computer.move(gameState, map);
+            repaint();
         }
     }
 
     public void mouseMoved(MouseEvent me) {
         if (!errorOccurred) {
-            for (Continent c : map.getContinents()) {
-                if (c.mouseMoved(me.getX(), me.getY(), gameState)) {
-                    this.repaint();
-                    break;
-                }
-            }
-        }
+            Predicate<Territory> hoverable = t -> true;
 
+            switch (gameState.currentPhase) {
+                case CLAIM:
+                    hoverable = Territory.UNCLAIMED;
+                    break;
+                case REINFORCE:
+                    hoverable = Territory.OWNED_PLAYER;
+                    break;
+                case ATTACK:
+                    if (selectedTerritory != null)
+                        hoverable = Territory.OWNED_PLAYER.or(t -> map.getNeighbors(selectedTerritory, p -> true).contains(t));
+                    else
+                        hoverable = Territory.OWNED_PLAYER;
+            }
+
+            Territory old = hoverTerritory;
+            hoverTerritory = map.findTerritory(me.getX(), me.getY());
+            if (hoverTerritory != null && !hoverable.test(hoverTerritory))
+                hoverTerritory = null;
+            if (old != hoverTerritory)
+                repaint();
+        }
     }
 
     public void mouseDragged(MouseEvent me) {
