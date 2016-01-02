@@ -17,6 +17,10 @@ public class Continent {
 
     private boolean isMonopolPlayer, isMonopolComp; //two booleans that save if the whole continent is owned by the player or the computer
 
+    public int getBonus() {
+        return bonus;
+    }
+
     public Continent(List<Territory> territories, int bonus) {
         this.territories = territories;
         this.bonus = bonus;

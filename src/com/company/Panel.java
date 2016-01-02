@@ -1,7 +1,5 @@
 package com.company;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -16,8 +14,6 @@ import java.util.function.Predicate;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
     private JButton button;
-
-    private GameMap map;
 
     private GameState gameState; //current game state
     private Territory hoverTerritory;
@@ -43,8 +39,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         super(true);
         try {
             //Load the map
-            if (!map.equals("")) this.map = MapParser.parseMap(map);
-            else throw new InvalidArgumentException(new String[]{"The given map is empty"});
+            gameState = new GameState(MapParser.parseMap(map));
 
             //Load the font
             mainFont = Font.createFont(Font.TRUETYPE_FONT,
@@ -69,7 +64,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     case MOVE:
                         button.setText("Accept");
                         gameState.currentPhase = GamePhase.ATTACKComputer;
-                        Computer.move(gameState, this.map);
+                        Computer.move(gameState);
                         this.repaint();
                 }
             });
@@ -93,8 +88,6 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             add(Box.createHorizontalGlue());
         }
 
-        gameState = new GameState(GamePhase.CLAIM, 0, 0);
-
         addMouseListener(this);
         addMouseMotionListener(this);
 
@@ -111,7 +104,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         paintBackground(g2);
 
         if (!errorOccurred) {
-            map.paint(g2, hoverTerritory, selectedTerritory);
+            gameState.map.paint(g2, hoverTerritory, selectedTerritory);
             paintHUD(g2);
         }
 
@@ -197,11 +190,13 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 switch (gameState.currentPhase) {
                     case CLAIM:
                         hoverTerritory.setArmy(1);
-                        map.updateMonopol(hoverTerritory);
-                        if (map.containsTerritory(Territory.UNCLAIMED))
+                        gameState.map.updateMonopol(hoverTerritory);
+                        if (gameState.map.containsTerritory(Territory.UNCLAIMED))
                             gameState.currentPhase = GamePhase.CLAIMComputer;
-                        else
+                        else {
                             gameState.currentPhase = GamePhase.REINFORCE;
+                            gameState.updateArmy();
+                        }
                         break;
                     case REINFORCE:
                         hoverTerritory.addArmy(1);
@@ -243,7 +238,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             } else
                 selectedTerritory = null;
 
-            Computer.move(gameState, map);
+            Computer.move(gameState);
             repaint();
         }
     }
@@ -262,10 +257,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 case ATTACK:
                     if (selectedTerritory != null)
                         hoverable = (Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER))
-                                .or(t -> map.getNeighbors(selectedTerritory, p -> true).contains(t));
+                                .or(t -> gameState.map.getNeighbors(selectedTerritory, p -> true).contains(t));
                     else
                         hoverable = Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER)
-                                .and(t -> map.getNeighbors(t, Territory.OWNED_COMP).size() > 0);
+                                .and(t -> gameState.map.getNeighbors(t, Territory.OWNED_COMP).size() > 0);
                     break;
                 case FOLLOW:
                     hoverable = t -> t == selectedTerritory;
@@ -273,7 +268,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             }
 
             Territory old = hoverTerritory;
-            hoverTerritory = map.findTerritory(me.getX(), me.getY());
+            hoverTerritory = gameState.map.findTerritory(me.getX(), me.getY());
             if (hoverTerritory != null && !hoverable.test(hoverTerritory))
                 hoverTerritory = null;
             if (old != hoverTerritory)
