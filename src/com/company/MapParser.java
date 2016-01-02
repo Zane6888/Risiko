@@ -54,21 +54,23 @@ public class MapParser {
         for (Map.Entry<String, List<String>> entry : continents.entrySet()) {
             List<Territory> territoryList = new LinkedList<>();
             for (String terrName : entry.getValue()) {
-                //for (Polygon terr : territories.get(terrName)) continentBorder.add(new Area(AffineTransform.getScaleInstance(1.1,1.1).createTransformedShape(terr)));
-                Territory newTerritory = new Territory(territories.remove(terrName), terrName, capitals.remove(terrName));
-                territoryList.add(newTerritory);
+                if (capitals.containsKey(terrName)) {
+                    Territory newTerritory = new Territory(territories.remove(terrName), terrName, capitals.remove(terrName));
+                    territoryList.add(newTerritory);
+                    territoryMap.put(terrName, newTerritory);
+                } else throw new InvalidArgumentException(new String[]{"'" + entry.getKey() + "' has no capital."});
 
-                territoryMap.put(terrName, newTerritory);
             }
             continentList.add(new Continent(territoryList, continentBonus.get(entry.getKey())));
         }
 
         List<Territory> territoryList = new LinkedList<>();
         for (Map.Entry<String, List<Polygon>> entry : territories.entrySet()) {
-            Territory newTerritory = new Territory(entry.getValue(), entry.getKey(), capitals.get(entry.getKey()));
-            territoryList.add(newTerritory);
-
-            territoryMap.put(entry.getKey(), newTerritory);
+            if (capitals.containsKey(entry.getKey())) {
+                Territory newTerritory = new Territory(entry.getValue(), entry.getKey(), capitals.get(entry.getKey()));
+                territoryList.add(newTerritory);
+                territoryMap.put(entry.getKey(), newTerritory);
+            } else throw new InvalidArgumentException(new String[]{"'" + entry.getKey() + "' has no capital."});
         }
         Continent restOfMap = new Continent(territoryList, 0);
         continentList.add(restOfMap);
