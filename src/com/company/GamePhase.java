@@ -8,5 +8,7 @@ public enum GamePhase {
     REINFORCEComputer,
     ATTACK,
     ATTACKComputer,
+    FOLLOW,
+    MOVE,
     GameOver
 }

@@ -11,6 +11,7 @@ public class Territory {
     public static final Predicate<Territory> UNCLAIMED = t -> t.getArmy() == 0;
     public static final Predicate<Territory> OWNED_COMP = t -> t.getArmy() < 0;
     public static final Predicate<Territory> OWNED_PLAYER = t -> t.getArmy() > 0;
+    public static final Predicate<Territory> CAN_ATTACK = t -> t.getArmy() > 1 || t.getArmy() < -1;
 
     private List<Polygon> patches = new LinkedList<>();
     private final Area area = new Area();

@@ -161,7 +161,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     case CLAIM:
                         hoverTerritory.setArmy(1);
                         map.updateMonopol(hoverTerritory);
-                        gameState.currentPhase = GamePhase.CLAIMComputer;
+                        if (map.containsTerritory(Territory.UNCLAIMED))
+                            gameState.currentPhase = GamePhase.CLAIMComputer;
+                        else
+                            gameState.currentPhase = GamePhase.REINFORCE;
                         break;
                     case REINFORCE:
                         hoverTerritory.addArmy(1);
@@ -172,7 +175,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                         if (Territory.OWNED_PLAYER.test(hoverTerritory))
                             selectedTerritory = hoverTerritory;
                         else {
-                            //TODO:   implement Fight
+                            Fight fight = new Fight(selectedTerritory, hoverTerritory);
+                            //TODO: maybe add some fancy popup/window displaying the fight
+                            //TODO: implement army Follow 
+                            fight.apply();
+                            selectedTerritory = null;
+                            gameState.currentPhase = GamePhase.FOLLOW;
                         }
                         break;
                 }
@@ -197,9 +205,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     break;
                 case ATTACK:
                     if (selectedTerritory != null)
-                        hoverable = Territory.OWNED_PLAYER.or(t -> map.getNeighbors(selectedTerritory, p -> true).contains(t));
+                        hoverable = (Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER))
+                                .or(t -> map.getNeighbors(selectedTerritory, p -> true).contains(t));
                     else
-                        hoverable = Territory.OWNED_PLAYER;
+                        hoverable = Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER)
+                                .and(t -> map.getNeighbors(t, Territory.OWNED_COMP).size() > 0);
             }
 
             Territory old = hoverTerritory;
