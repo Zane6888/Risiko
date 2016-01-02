@@ -44,6 +44,15 @@ public class Fight {
         return duelAtk;
     }
 
+    private int occupyingArmy = -1;
+
+    /**
+     * @return Attackers leftover army occupying the defenders Territory, -1 if defender did not lose their Territory
+     */
+    public int getOccupyingArmy() {
+        return occupyingArmy;
+    }
+
     private boolean applied = false;
 
     public Fight(Territory attacking, Territory defending) {
@@ -86,9 +95,15 @@ public class Fight {
         }
     }
 
-    public void apply() {
+    /**
+     * Applies the change in armys to the Territories
+     *
+     * @return true if the attacker now occupies the defending Territory
+     */
+    public boolean apply() {
         if (applied)
             throw new IllegalStateException("Fight was already applied previously");
+        applied = true;
 
         int deathAtk = diceAtk[duelAtk[0]] <= diceDef[duelDef[0]] ? 1 : 0;
         deathAtk += duelAtk[1] != -1 && diceAtk[duelAtk[1]] <= diceDef[duelDef[1]] ? 1 : 0;
@@ -96,12 +111,15 @@ public class Fight {
         int deathDef = diceAtk[duelAtk[0]] > diceDef[duelDef[0]] ? 1 : 0;
         deathDef += duelAtk[1] != -1 && diceAtk[duelAtk[1]] > diceDef[duelDef[1]] ? 1 : 0;
 
-        atk.addArmy(-deathAtk);
-        if (def.getArmy() + deathDef == 0)
-            def.setArmy(3 - deathAtk);
-        else
+        if (def.getArmy() + deathDef == 0) {
+            occupyingArmy = diceAtk.length - deathAtk;
+            def.setArmy(occupyingArmy);
+            atk.addArmy(-diceAtk.length);
+            return true;
+        } else {
             def.addArmy(-deathDef);
-
-        applied = true;
+            atk.addArmy(-deathAtk);
+            return false;
+        }
     }
 }
