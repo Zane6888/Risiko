@@ -37,4 +37,13 @@ public class Helper {
     public static int dice() {
         return rnd.nextInt(5) + 1;
     }
+
+    public static int max(int[] arr) {
+        int index = 0;
+
+        for (int i = 1; i < arr.length; i++)
+            if (arr[i] > arr[index])
+                index = i;
+        return index;
+    }
 }
