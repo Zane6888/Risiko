@@ -2,13 +2,15 @@ package com.company;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Random;
 
 public class Helper {
+    private static final Random rnd = new Random();
 
     public static <T> T getRandom(List<T> l) {
         if (l == null || l.size() == 0)
             return null;
-        int r = (int) (Math.random() * l.size());
+        int r = rnd.nextInt(l.size());
         return l.get(r);
     }
 
@@ -30,5 +32,9 @@ public class Helper {
         int green = Math.max(Math.min((int) (c.getGreen() * f), 255), 0);
         int blue = Math.max(Math.min((int) (c.getBlue() * f), 255), 0);
         return new Color(red, green, blue);
+    }
+
+    public static int dice() {
+        return rnd.nextInt(5) + 1;
     }
 }
