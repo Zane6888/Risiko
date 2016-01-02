@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.util.function.Predicate;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
+    private JButton button;
 
     private GameMap map;
 
@@ -54,6 +55,29 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             //Load the HUD image
             hud = ImageIO.read(new File("res/hud.png"));
 
+            //TODO: Decide on positioning, add actual design
+            button = new JButton("Accept");
+            button.setVisible(true);
+            button.setPreferredSize(new Dimension(100, 20));
+            button.addActionListener(e -> {
+                switch (gameState.currentPhase) {
+                    case FOLLOW:
+                        button.setText("End Turn");
+                        gameState.currentPhase = GamePhase.MOVE;
+                        this.repaint();
+                        break;
+                    case MOVE:
+                        button.setText("Accept");
+                        gameState.currentPhase = GamePhase.ATTACKComputer;
+                        Computer.move(gameState, this.map);
+                        this.repaint();
+                }
+            });
+            setLayout(new BorderLayout());
+            JPanel p = new JPanel();
+            p.setBackground(new Color(0, 0, 0, 0));
+            p.add(button);
+            add(p, BorderLayout.SOUTH);
 
         } catch (Exception e) {
             errorOccurred = true;
@@ -123,6 +147,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             case ATTACKComputer:
                 currentPhase = "ATTACK";
                 break;
+            case MOVE:
+                currentPhase = "MOVE";
+                break;
+            case FOLLOW:
+                currentPhase = "FOLLOW";
+                break;
         }
         double stringWidth = g.getFontMetrics().getStringBounds(currentPhase, g).getWidth();
         g.drawString(currentPhase, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 27);
@@ -190,7 +220,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             } else {
                                 selectedTerritory = null;
                                 gameState.currentPhase = GamePhase.MOVE;
+                                button.setText("End Turn");
                             }
+                            button.setVisible(true);
                         }
                         break;
                     case FOLLOW:
