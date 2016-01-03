@@ -1,5 +1,7 @@
 package com.company;
 
+import java.util.function.Predicate;
+
 public class Computer {
 
     /**
@@ -29,5 +31,17 @@ public class Computer {
         }
 
         return false;
+    }
+
+    public static Fight attack(GameState state) {
+        if (state.currentPhase != GamePhase.ATTACKComputer)
+            throw new IllegalStateException("Computer can only attack in ATTACKComputer phase");
+
+        Predicate<Territory> p = t -> t.getArmy() < -1 && state.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0;
+        Territory atk = state.map.getRandomTerritory(p);
+        if (atk == null)
+            return null;
+        Territory def = Helper.getRandom(state.map.getNeighbors(atk, Territory.OWNED_PLAYER));
+        return new Fight(atk, def);
     }
 }

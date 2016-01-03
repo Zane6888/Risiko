@@ -64,7 +64,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     case MOVE:
                         button.setText("Accept");
                         gameState.currentPhase = GamePhase.ATTACKComputer;
-                        Computer.move(gameState);
+                        lastFight = Computer.attack(gameState);
+                        //TODO: maybe add some fancy popup/window displaying the fight
+                        if (lastFight != null)
+                            lastFight.apply();
+                        //Computer.move(gameState);
                         this.repaint();
                 }
             });
