@@ -28,6 +28,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private Fight lastFight;
 
     private BufferedImage hud; //a buffered image for the HUD
+    private String won = "";
 
     private Font mainFont;
     private Font smallFont;
@@ -78,8 +79,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                         lastFight = computer.attack(gameState);
                         //TODO: maybe add some fancy popup/window displaying the fight
                         if (lastFight != null) {
-                            lastFight.apply();
-                            gameState.currentPhase = GamePhase.FOLLOWComputer;
+                            if (lastFight.apply()) {
+                                if (checkGameOver())
+                                    return;
+                                gameState.currentPhase = GamePhase.FOLLOWComputer;
+                            } else
+                                gameState.currentPhase = GamePhase.MOVEComputer;
                         } else {
                             gameState.currentPhase = GamePhase.MOVEComputer;
                         }
@@ -165,6 +170,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             case FOLLOW:
                 currentPhase = "FOLLOW";
                 break;
+            case GameOver:
+                currentPhase = won + " WON!";
+                break;
         }
         double stringWidth = g.getFontMetrics().getStringBounds(currentPhase, g).getWidth();
         g.drawString(currentPhase, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 27);
@@ -204,7 +212,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     }
 
     public void mouseClicked(MouseEvent me) {
-        if (!errorOccurred) {
+        if (!errorOccurred && gameState.currentPhase != GamePhase.GameOver) {
             if (hoverTerritory != null) {
                 switch (gameState.currentPhase) {
                     case CLAIM:
@@ -229,6 +237,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             lastFight = new Fight(selectedTerritory, hoverTerritory);
                             //TODO: maybe add some fancy popup/window displaying the fight
                             if (lastFight.apply()) {
+                                if (checkGameOver())
+                                    return;
                                 selectedTerritory = hoverTerritory;
                                 gameState.currentPhase = GamePhase.FOLLOW;
                             } else {
@@ -302,8 +312,24 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         }
     }
 
+    private boolean checkGameOver() {
+        if (gameState.map.containsTerritory(Territory.UNCLAIMED))
+            return false;
+        boolean player = gameState.map.containsTerritory(Territory.OWNED_PLAYER);
+        boolean comp = gameState.map.containsTerritory(Territory.OWNED_COMP);
+        if (player && comp)
+            return false;
+
+        won = player ? "PLAYER" : "COMPUTER";
+
+        gameState.currentPhase = GamePhase.GameOver;
+        selectedTerritory = null;
+        repaint();
+        return true;
+    }
+
     public void mouseMoved(MouseEvent me) {
-        if (!errorOccurred) {
+        if (!errorOccurred && gameState.currentPhase != GamePhase.GameOver) {
             Predicate<Territory> hoverable = t -> true;
 
             switch (gameState.currentPhase) {
