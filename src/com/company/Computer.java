@@ -26,7 +26,10 @@ public class Computer {
             case REINFORCEComputer: {
                 for (; state.armyComputer > 0; state.armyComputer--)
                     reinforceStrategy.getTerritory(state).addArmy(1);
-                state.currentPhase = GamePhase.ATTACK;
+                if (state.map.containsTerritory(t -> t.getArmy() > 1 && state.map.getNeighbors(t, Territory.OWNED_COMP).size() > 0))
+                    state.currentPhase = GamePhase.ATTACK;
+                else
+                    state.currentPhase = GamePhase.MOVE;
                 break;
             }
         }
