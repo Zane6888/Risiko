@@ -33,7 +33,10 @@ public class GameMap {
     }
 
     public Territory getRandomTerritory(Predicate<Territory> p) {
-        return Helper.getRandom(continents.stream().filter(c -> c.containsTerritory(p)).collect(Collectors.toList())).getRandomTerritory(p);
+        Continent co = Helper.getRandom(continents.stream().filter(c -> c.containsTerritory(p)).collect(Collectors.toList()));
+        if (co == null)
+            return null;
+        return co.getRandomTerritory(p);
     }
 
     public boolean containsTerritory(Predicate<Territory> p) {
