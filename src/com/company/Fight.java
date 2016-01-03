@@ -111,9 +111,9 @@ public class Fight {
         int deathDef = diceAtk[duelAtk[0]] > diceDef[duelDef[0]] ? 1 : 0;
         deathDef += duelAtk[1] != -1 && diceAtk[duelAtk[1]] > diceDef[duelDef[1]] ? 1 : 0;
 
-        if (def.getArmy() + deathDef == 0) {
+        if (Math.abs(def.getArmy()) - deathDef == 0) {
             occupyingArmy = diceAtk.length - deathAtk;
-            def.setArmy(occupyingArmy);
+            def.setArmy((int) (occupyingArmy * Math.signum((float) atk.getArmy())));
             atk.addArmy(-diceAtk.length);
             return true;
         } else {
