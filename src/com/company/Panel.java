@@ -80,6 +80,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                         //TODO: maybe add some fancy popup/window displaying the fight
                         if (lastFight != null) {
                             if (lastFight.apply()) {
+                                gameState.map.updateMonopol(lastFight.getDef());
                                 if (checkGameOver())
                                     return;
                                 gameState.currentPhase = GamePhase.FOLLOWComputer;
@@ -237,6 +238,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             lastFight = new Fight(selectedTerritory, hoverTerritory);
                             //TODO: maybe add some fancy popup/window displaying the fight
                             if (lastFight.apply()) {
+                                gameState.map.updateMonopol(lastFight.getDef());
                                 if (checkGameOver())
                                     return;
                                 selectedTerritory = hoverTerritory;
