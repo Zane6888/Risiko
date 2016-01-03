@@ -21,6 +21,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private Territory hoverTerritory;
     private Territory selectedTerritory;
 
+    private Territory moveTarget;
+    private Territory moveOrigin;
+    private int moveAmount = 0;
+
     private Fight lastFight;
 
     private BufferedImage hud; //a buffered image for the HUD
@@ -60,11 +64,16 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 switch (gameState.currentPhase) {
                     case FOLLOW:
                         button.setText("End Turn");
+                        selectedTerritory = null;
                         gameState.currentPhase = GamePhase.MOVE;
                         this.repaint();
                         break;
                     case MOVE:
                         button.setText("Accept");
+                        selectedTerritory = null;
+                        moveAmount = 0;
+                        moveTarget = null;
+                        moveOrigin = null;
                         gameState.currentPhase = GamePhase.ATTACKComputer;
                         lastFight = computer.attack(gameState);
                         //TODO: maybe add some fancy popup/window displaying the fight
@@ -243,13 +252,53 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             lastFight.getDef().addArmy(-1);
                         }
                         break;
+                    case MOVE:
+                        if (selectedTerritory == null) {
+                            selectedTerritory = hoverTerritory;
+                            break;
+                        } else if (me.getButton() == MouseEvent.BUTTON1 && hoverTerritory.getArmy() > 1) {
+                            selectedTerritory = hoverTerritory;
+                        } else if (me.getButton() == MouseEvent.BUTTON3) {
+                            if ((moveTarget == null || moveAmount == 0)
+                                    && gameState.map.getNeighbors(selectedTerritory, Territory.OWNED_PLAYER).contains(hoverTerritory)) {
+                                moveTarget = hoverTerritory;
+                                moveOrigin = selectedTerritory;
+                                moveOne(false);
+                            } else if (moveTarget == hoverTerritory && moveOrigin == selectedTerritory) {
+                                moveOne(false);
+                            } else if (moveOrigin == hoverTerritory && moveTarget == selectedTerritory) {
+                                moveOne(true);
+                            }
+                        }
 
                 }
-            } else
+            } else if (gameState.currentPhase != GamePhase.FOLLOW && moveAmount == 0)
                 selectedTerritory = null;
+
 
             computer.doTurn(gameState);
             repaint();
+        }
+    }
+
+    private void moveOne(boolean back) {
+        if (back) {
+            if (moveTarget.getArmy() > 1) {
+                moveAmount--;
+                moveTarget.addArmy(-1);
+                moveOrigin.addArmy(1);
+                if (moveAmount == 0) {
+                    moveTarget = null;
+                    moveOrigin = null;
+                    selectedTerritory = null;
+                }
+            }
+        } else {
+            if (moveOrigin.getArmy() > 1) {
+                moveAmount++;
+                moveTarget.addArmy(1);
+                moveOrigin.addArmy(-1);
+            }
         }
     }
 
@@ -275,6 +324,16 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 case FOLLOW:
                     hoverable = t -> t == selectedTerritory;
                     break;
+                case MOVE:
+                    if (selectedTerritory == null && moveAmount == 0)
+                        hoverable = t -> t.getArmy() > 1
+                                && gameState.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0;
+                    else if (moveTarget == null || moveAmount == 0)
+                        hoverable = t -> (t.getArmy() > 1
+                                && gameState.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0)
+                                || gameState.map.getNeighbors(selectedTerritory, Territory.OWNED_PLAYER).contains(t);
+                    else
+                        hoverable = t -> t == moveTarget || t == moveOrigin;
             }
 
             Territory old = hoverTerritory;
