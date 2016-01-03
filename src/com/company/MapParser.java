@@ -72,8 +72,11 @@ public class MapParser {
                 territoryMap.put(entry.getKey(), newTerritory);
             } else throw new InvalidArgumentException(new String[]{"'" + entry.getKey() + "' has no capital."});
         }
-        Continent restOfMap = new Continent(territoryList, 0);
-        continentList.add(restOfMap);
+
+        if (territoryList.size() > 0) {
+            Continent restOfMap = new Continent(territoryList, 0);
+            continentList.add(restOfMap);
+        }
 
         List<Neighbors> neighbors = new LinkedList<>();
         for (Map.Entry<String, List<String>> entry : neighborList.entrySet()) {
