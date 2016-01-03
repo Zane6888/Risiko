@@ -1,47 +1,60 @@
 package com.company;
 
-import java.util.function.Predicate;
+import com.company.strategy.*;
 
 public class Computer {
 
-    /**
-     * Makes one move for the computer.
-     *
-     * @param gameState the current GameState
-     * @return returns true iff GUI has to be redrawn
-     */
-    public static boolean move(GameState gameState) {
-        switch (gameState.currentPhase) {
+    public TerritoryStrategy claimStrategy = new RandomClaimStrategy();
+    public TerritoryStrategy reinforceStrategy = new RandomReinforceStrategy();
+    public AttackStrategy attackStrategy = new RandomAttackStrategy();
+    public FollowStrategy followStrategy = (s, f) -> {
+    };
+    public PlainStrategy moveStrategy = s -> {
+    };
+
+    public void doTurn(GameState state) {
+        switch (state.currentPhase) {
             case CLAIMComputer:
-                gameState.map.getRandomTerritory(Territory.UNCLAIMED).setArmy(-1);
+                claimStrategy.getTerritory(state).setArmy(-1);
 
-                if (!gameState.map.containsTerritory(Territory.UNCLAIMED)) {
-                    gameState.currentPhase = GamePhase.REINFORCE;
-                    gameState.updateArmy();
+                if (!state.map.containsTerritory(Territory.UNCLAIMED)) {
+                    state.currentPhase = GamePhase.REINFORCE;
+                    state.updateArmy();
                 } else
-                    gameState.currentPhase = GamePhase.CLAIM;
-
-                return true;
+                    state.currentPhase = GamePhase.CLAIM;
+                break;
             case REINFORCEComputer: {
-                for (; gameState.armyComputer > 0; gameState.armyComputer--)
-                    gameState.map.getRandomTerritory(Territory.OWNED_COMP).addArmy(1);
-                gameState.currentPhase = GamePhase.ATTACK;
+                for (; state.armyComputer > 0; state.armyComputer--)
+                    reinforceStrategy.getTerritory(state).addArmy(1);
+                state.currentPhase = GamePhase.ATTACK;
                 break;
             }
         }
-
-        return false;
     }
 
-    public static Fight attack(GameState state) {
+    public Fight attack(GameState state) {
         if (state.currentPhase != GamePhase.ATTACKComputer)
             throw new IllegalStateException("Computer can only attack in ATTACKComputer phase");
 
-        Predicate<Territory> p = t -> t.getArmy() < -1 && state.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0;
-        Territory atk = state.map.getRandomTerritory(p);
+        Territory atk = attackStrategy.getAtk(state);
         if (atk == null)
             return null;
-        Territory def = Helper.getRandom(state.map.getNeighbors(atk, Territory.OWNED_PLAYER));
+        Territory def = attackStrategy.getDef(state, atk);
         return new Fight(atk, def);
+    }
+
+    public void doPostAttack(GameState state, Fight fight) {
+        switch (state.currentPhase) {
+            case FOLLOWComputer:
+                followStrategy.execute(state, fight);
+                state.currentPhase = GamePhase.MOVEComputer;
+                doPostAttack(state, fight);
+                break;
+            case MOVEComputer:
+                moveStrategy.execute(state);
+                state.currentPhase = GamePhase.REINFORCE;
+                state.updateArmy();
+                break;
+        }
     }
 }

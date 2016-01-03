@@ -9,6 +9,8 @@ public enum GamePhase {
     ATTACK,
     ATTACKComputer,
     FOLLOW,
+    FOLLOWComputer,
     MOVE,
+    MOVEComputer,
     GameOver
 }

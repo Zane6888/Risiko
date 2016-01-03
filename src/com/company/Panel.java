@@ -15,6 +15,8 @@ import java.util.function.Predicate;
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
     private JButton button;
 
+    private Computer computer = new Computer();
+
     private GameState gameState; //current game state
     private Territory hoverTerritory;
     private Territory selectedTerritory;
@@ -64,11 +66,15 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     case MOVE:
                         button.setText("Accept");
                         gameState.currentPhase = GamePhase.ATTACKComputer;
-                        lastFight = Computer.attack(gameState);
+                        lastFight = computer.attack(gameState);
                         //TODO: maybe add some fancy popup/window displaying the fight
-                        if (lastFight != null)
+                        if (lastFight != null) {
                             lastFight.apply();
-                        //Computer.move(gameState);
+                            gameState.currentPhase = GamePhase.FOLLOWComputer;
+                        } else {
+                            gameState.currentPhase = GamePhase.MOVEComputer;
+                        }
+                        computer.doPostAttack(gameState, lastFight);
                         this.repaint();
                 }
             });
@@ -242,7 +248,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             } else
                 selectedTerritory = null;
 
-            Computer.move(gameState);
+            computer.doTurn(gameState);
             repaint();
         }
     }
