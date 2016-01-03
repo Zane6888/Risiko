@@ -15,10 +15,6 @@ public class GameMap {
         return continents;
     }
 
-    public List<Neighbors> getNeighbors() {
-        return neighbors;
-    }
-
     public GameMap(List<Continent> continents, List<Neighbors> neighbors) {
         this.continents = continents;
         this.neighbors = neighbors;

@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 public class Continent {
     private List<Territory> territories = new LinkedList<>();
-    private Territory hoverTerritory = null;  //the territory that is currently hovered with the mouse
-    private Territory selectedTerritory = null; //the territory that is currently selected
     private int bonus; //number of bonus army when the whole continent is owned by one player
     private Area borders; //combined area of all territories of the continent
 
@@ -83,28 +81,4 @@ public class Continent {
     public int countTerritories(Predicate<Territory> p) {
         return (int) territories.stream().filter(p).count();
     }
-
-    /**
-     * Returns true iff all territories are conquered by either of the opponents
-     */
-    public boolean isTaken() {
-        for (Territory t : territories) {
-            if (t.getArmy() == 0) return false;
-        }
-        return true;
-    }
-
-    /**
-     * Calculates three times the number of armies that result from the possession of the territories
-     *
-     * @param gameState the current gameState that where the new values will be added
-     */
-    public void calculateArmies(GameState gameState) {
-        gameState.armyPlayer += countTerritories(Territory.OWNED_PLAYER);
-        gameState.armyComputer += countTerritories(Territory.OWNED_COMP);
-        if (isMonopolPlayer) gameState.armyPlayer += bonus * 3;
-        else if (isMonopolComp) gameState.armyComputer += bonus * 3;
-
-    }
-
 }

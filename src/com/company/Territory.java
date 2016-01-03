@@ -18,8 +18,6 @@ public class Territory {
     private Color color; //color of the territory
     private int army; //number of army, negative numbers are for the computer, positive for the player
 
-
-
     public int getArmy() {
         return army;
     }
@@ -90,7 +88,6 @@ public class Territory {
         g.setColor(GameConstants.BORDER_COLOR_TERRITORY);
         g.setStroke(new BasicStroke(1.5f));
         for (Polygon pol : patches) g.drawPolygon(pol);
-
     }
 
     /**
