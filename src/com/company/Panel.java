@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,6 +39,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000, new float[]{0.0f, 0.5f}, new Color[]{new Color(150, 216, 255), new Color(89, 193, 255)});
 
     private boolean errorOccurred = false;
+    private String errorMessage = "";
 
     /**
      * @param map A string in the given format containing the information from the map
@@ -101,17 +103,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         } catch (Exception e) {
             errorOccurred = true;
-
-            System.out.println("FEHLER: " + e.getMessage());
-            JLabel errorLabel = new JLabel("<html><body>An error occurred while loading.<br>Error Message: " + e.getMessage() + "</body><html>", SwingConstants.CENTER);
-
-            this.add(errorLabel, BorderLayout.CENTER);
-
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            add(Box.createHorizontalGlue());
-            add(errorLabel);
-            add(Box.createHorizontalGlue());
+            errorMessage = "An error occurred while loading.\nError Message: " + e.getMessage();
         }
+
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -131,8 +125,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         if (!errorOccurred) {
             gameState.map.paint(g2, hoverTerritory, selectedTerritory);
             paintHUD(g2);
+        } else {
+            drawCenteredText(errorMessage, g2);
         }
-
 
     }
 
@@ -172,11 +167,18 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 currentPhase = "FOLLOW";
                 break;
             case GameOver:
-                currentPhase = won + " WON!";
+                currentPhase = "GAME OVER";
                 break;
         }
         double stringWidth = g.getFontMetrics().getStringBounds(currentPhase, g).getWidth();
         g.drawString(currentPhase, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 27);
+
+        if (gameState.currentPhase == GamePhase.GameOver) {
+            g.setColor(new Color(1f, 1f, 1f, 0.5f));
+            g.fillRect(0, 0, GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_HEIGHT);
+            drawCenteredText(won + " has won!", g);
+        }
+
     }
 
     private void paintBackground(Graphics2D g) {
@@ -197,6 +199,36 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         for (int y = ySize; y < GameConstants.WINDOW_HEIGHT; y += ySize)
             g.drawLine(0, y, GameConstants.WINDOW_WIDTH, y);
 
+
+    }
+
+    private void drawCenteredText(String string, Graphics2D g) {
+        g.setFont(smallFont);
+
+        String[] lines = string.split("\n");
+        int maxStringWidth = 0;
+        for (String line : lines) {
+            int lineWidth = (int) g.getFontMetrics().getStringBounds(line, g).getWidth();
+            if (lineWidth > maxStringWidth) maxStringWidth = lineWidth;
+        }
+
+        int height = (int) g.getFontMetrics().getStringBounds(string, g).getHeight() * lines.length + 15;
+        int width = maxStringWidth + 20;
+        int y = (GameConstants.WINDOW_HEIGHT) / 2 - height / 2;
+        int x = (GameConstants.WINDOW_WIDTH - width) / 2;
+
+        g.setColor(Color.WHITE);
+
+        g.fillOval(x - height / 2, y, height, height);
+        g.fillRect(x, y, width, height);
+        g.fillOval(x + width - height / 2, y, height, height);
+        g.setColor(Color.BLACK);
+
+        int yPositionText = y;
+        for (String line : lines) {
+            Rectangle2D stringDimensions = g.getFontMetrics().getStringBounds(line, g);
+            g.drawString(line, GameConstants.WINDOW_WIDTH / 2 - (int) (stringDimensions.getWidth() / 2), yPositionText += stringDimensions.getHeight());
+        }
 
     }
 
