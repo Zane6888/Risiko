@@ -110,6 +110,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             p.add(button);
             add(p, BorderLayout.SOUTH);
 
+            BufferedImage img = ImageIO.read(new File("res/cursor.png"));
+            Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "risiko_cursor");
+            setCursor(cursor);
 
         } catch (Exception e) {
             errorOccurred = true;
