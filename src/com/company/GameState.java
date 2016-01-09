@@ -15,9 +15,9 @@ public class GameState {
         Territory t;
         for (Continent c : map.getContinents()) {
             t = c.getRandomTerritory(t1 -> true);
-            if (t.getArmy() > 0 && !map.containsTerritory(Territory.OWNED_PLAYER.negate()))
+            if (t.getArmy() > 0 && !c.containsTerritory(Territory.OWNED_PLAYER.negate()))
                 armyPlayer += c.getBonus();
-            else if (t.getArmy() < 0 && !map.containsTerritory(Territory.OWNED_COMP.negate()))
+            else if (t.getArmy() < 0 && !c.containsTerritory(Territory.OWNED_COMP.negate()))
                 armyComputer += c.getBonus();
         }
 
