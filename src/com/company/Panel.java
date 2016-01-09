@@ -61,7 +61,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             hud = ImageIO.read(new File("res/hud.png"));
 
             button = new JButton("Accept");
-            button.setVisible(true);
+            button.setVisible(false);
             button.setPreferredSize(new Dimension(100, 20));
 
             // button.setBorderPainted(false);
@@ -81,6 +81,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                         break;
                     case MOVE:
                         button.setText("Accept");
+                        button.setVisible(false);
                         selectedTerritory = null;
                         moveAmount = 0;
                         moveTarget = null;
