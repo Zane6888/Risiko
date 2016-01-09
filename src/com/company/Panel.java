@@ -430,8 +430,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                         //Select all territories from player that can attack
                         //and all territories that are neighbors of selection and owned by computer
                         hoverable = (Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER))
-                                .or(t -> gameState.map.getNeighbors(selectedTerritory, p -> true).contains(t));
-                        //TODO hoverable zuweisung fehlerhaft, selektiert alle nachbarn vom selektieren territory
+                                .or(t -> gameState.map.getNeighbors(selectedTerritory, Territory.OWNED_COMP).contains(t));
                     else
                         //Select all territories from player that can attack and have neighbors that
                         //are owned by the computer
