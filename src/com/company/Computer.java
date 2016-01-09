@@ -15,7 +15,9 @@ public class Computer {
     public void doTurn(GameState state) {
         switch (state.currentPhase) {
             case CLAIMComputer:
-                claimStrategy.getTerritory(state).setArmy(-1);
+                Territory claimed = claimStrategy.getTerritory(state);
+                claimed.setArmy(-1);
+                state.map.updateMonopol(claimed);
 
                 if (!state.map.containsTerritory(Territory.UNCLAIMED)) {
                     state.currentPhase = GamePhase.REINFORCE;
