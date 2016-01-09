@@ -313,6 +313,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                                 gameState.currentPhase = GamePhase.MOVE;
                                 button.setText("End Turn");
                             }
+                            hoverTerritory = null;
                             button.setVisible(true);
                         }
                         break;
