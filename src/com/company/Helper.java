@@ -27,11 +27,19 @@ public class Helper {
         return returnArray;
     }
 
-    public static Color multiplyColor(Color c, Float f) {
-        int red = Math.max(Math.min((int) (c.getRed() * f), 255), 0);
-        int green = Math.max(Math.min((int) (c.getGreen() * f), 255), 0);
-        int blue = Math.max(Math.min((int) (c.getBlue() * f), 255), 0);
-        return new Color(red, green, blue);
+    /**
+     * Lightens the given color by the given amount of percentage
+     *
+     * @param c       Color that should be lightened
+     * @param percent percentage the color is lightened by
+     * @return a new lightened Color
+     */
+    public static Color lightenColor(Color c, int percent) {
+        float[] hsb = new float[3];
+        Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsb);
+        float brightness = hsb[2] + percent / 100f;
+        if (brightness > 1) brightness = 1;
+        return new Color(Color.HSBtoRGB(hsb[0], hsb[1], brightness));
     }
 
     public static int dice() {

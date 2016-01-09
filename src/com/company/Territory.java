@@ -74,7 +74,7 @@ public class Territory {
     public void paintTerritory(Graphics2D g, boolean hovered, boolean selected) {
         //If selected lighten up the color
         if (hovered) {
-            g.setColor(Helper.multiplyColor(color, 1.5f));
+            g.setColor(Helper.lightenColor(color, 30));
         } else g.setColor(color);
 
         for (Polygon pol : patches) g.fillPolygon(pol);
