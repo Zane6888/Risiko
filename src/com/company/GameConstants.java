@@ -15,7 +15,6 @@ public class GameConstants {
     public static final Color BORDER_COLOR_MONOPOL = Color.YELLOW;
 
     public static final Color BORDER_COLOR_TERRITORY = new Color(60, 60, 60);
-    public static final Color BORDER_COLOR_SELECTED_TERRITORY = Color.YELLOW;
 
     public static final TexturePaint HATCHED_PAINT = initializeHatchedPaint();
 

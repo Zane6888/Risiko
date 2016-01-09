@@ -68,18 +68,18 @@ public class Territory {
      * Draws the territory
      *
      * @param g        Graphics2D object to draw on
-     * @param selected a boolean indicating whether the territory should be highlighted or not
-     * @param  muted if true territory is drawn hatched
+     * @param hovered a boolean indicating whether the territory should be highlighted or not
+     * @param  selected if true territory is drawn hatched
      */
-    public void paintTerritory(Graphics2D g, boolean selected, boolean muted) {
+    public void paintTerritory(Graphics2D g, boolean hovered, boolean selected) {
         //If selected lighten up the color
-        if (selected) {
+        if (hovered) {
             g.setColor(Helper.multiplyColor(color, 1.5f));
         } else g.setColor(color);
 
         for (Polygon pol : patches) g.fillPolygon(pol);
 
-        if (muted) {
+        if (selected) {
             g.setPaint(GameConstants.HATCHED_PAINT);
             for (Polygon pol : patches) g.fillPolygon(pol);
         }
