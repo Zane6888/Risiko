@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -143,25 +144,38 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         if (!errorOccurred) {
             gameState.map.paint(g2, hoverTerritory, selectedTerritory);
             paintHUD(g2);
+
+            //Draw the arrow to indicate movement
+            if (hoverTerritory != null) {
+                switch (gameState.currentPhase) {
+                    case ATTACK:
+                        if (selectedTerritory != null && hoverTerritory.getArmy() < 0) {
+                            drawArrow(g2, Color.YELLOW, selectedTerritory.getCapitalPosition(), hoverTerritory.getCapitalPosition());
+                        }
+                        break;
+                }
+            }
+
+
+            //Draw the name of the hovered territory at the top
+            if (hoverTerritory != null) {
+                g.setColor(hudColor);
+                g.setFont(hoverFont);
+                String name = hoverTerritory.getName();
+                double stringWidth = g.getFontMetrics().getStringBounds(name, g).getWidth();
+                g.drawString(name, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
+            }
+
         } else {
             drawCenteredText(errorMessage, g2);
         }
-
-        if (hoverTerritory != null) {
-            g.setColor(hudColor);
-            g.setFont(hoverFont);
-            String name = hoverTerritory.getName();
-            double stringWidth = g.getFontMetrics().getStringBounds(name, g).getWidth();
-            g.drawString(name, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
-        }
-
 
     }
 
     /**
      * Draws the HUD including the number of armies of each opponent and the name of the current game phase
      *
-     * @param g GRaphics2D to draw on
+     * @param g Graphics2D to draw on
      */
     private void paintHUD(Graphics2D g) {
         g.drawImage(hud, 0, 0, null); //Draw the hud
@@ -282,6 +296,46 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             g.drawString(line, GameConstants.WINDOW_WIDTH / 2 - (int) (stringDimensions.getWidth() / 2), yPositionText += stringDimensions.getHeight());
         }
 
+    }
+
+    /**
+     * Draws an arrow to symbolies movement between territories
+     *
+     * @param g Graphics2D that is drawn on
+     * @param c Color the arrow is drawn in
+     */
+    private void drawArrow(Graphics2D g, Color c, Point from, Point to) {
+
+        Polygon arrowHead = new Polygon();
+        arrowHead.addPoint(0, 20);
+        arrowHead.addPoint(-10, 0);
+        arrowHead.addPoint(10, 0);
+
+
+        Point vector = new Point(from.x - to.x, from.y - to.x); //vector of the arrow
+        double vectorLenght = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
+        Point2D.Double unitVector = new Point2D.Double(vector.x / vectorLenght, vector.y / vectorLenght); //unit vector
+
+        //TODO doesnt work
+        to = new Point(to.x - (int) (unitVector.x * 10), to.y - (int) (unitVector.y * 10)); //shorten the line to fit the arrow head
+        //TODO also shorten the line on both sides to not overlap the capitals (Radius of capitals = 13)
+
+        AffineTransform at = new AffineTransform(); //AffineTransform to rotate the arrow head
+        at.setToIdentity();
+        double angle = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX()); //angle of the arrow
+        at.translate(to.x, to.y); //Move the arrow head to the end point
+        at.rotate((angle - Math.PI / 2d)); //Rotate the arrow
+
+        g.setColor(c);
+        g.setStroke(new BasicStroke(7));
+        g.drawLine(from.x, from.y, to.x, to.y);
+        g.fill(arrowHead); //Draw the line of the arrow
+
+        Graphics2D g2 = (Graphics2D) g.create(); //new Graphics2D for the rotation
+        g2.setTransform(at);
+        g2.fill(arrowHead);
+        g.fill(arrowHead);
+        g2.dispose();
     }
 
 
