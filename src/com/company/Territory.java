@@ -38,6 +38,11 @@ public class Territory {
     }
 
     private String name; //Name of the territory
+
+    public String getName() {
+        return name;
+    }
+
     private Point capital; //Position of the capital
 
     public Point getCapitalPosition() {

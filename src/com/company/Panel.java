@@ -34,6 +34,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     private Font phaseFont; //Big font used for writing the current game phase name
     private Font smallFont; //Small font used for writing the armies and messages
+    private Font hoverFont; //small font used to write the name of hovered territory
+
     private final static Color hudColor = new Color(0.12f, 0.12f, 0.12f);
 
     //A radial gradient paint for the blue background
@@ -41,6 +43,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     private boolean errorOccurred = false;  //Boolean indicating whether an error occurred while loading the Panel
     private String errorMessage = ""; //String for the error message if an error occurred while loading
+
 
     /**
      * @param map A string in the given format containing the information from the map
@@ -56,6 +59,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     new FileInputStream("res/ArchivoBlack.ttf"));
             phaseFont = phaseFont.deriveFont(25F);
             smallFont = phaseFont.deriveFont(16F);
+            hoverFont = phaseFont.deriveFont(14F);
 
             //Load the HUD image
             hud = ImageIO.read(new File("res/hud.png"));
@@ -142,6 +146,15 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         } else {
             drawCenteredText(errorMessage, g2);
         }
+
+        if (hoverTerritory != null) {
+            g.setColor(hudColor);
+            g.setFont(hoverFont);
+            String name = hoverTerritory.getName();
+            double stringWidth = g.getFontMetrics().getStringBounds(name, g).getWidth();
+            g.drawString(name, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
+        }
+
 
     }
 
