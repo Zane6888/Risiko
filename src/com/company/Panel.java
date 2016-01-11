@@ -60,55 +60,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             //Load the HUD image
             hud = ImageIO.read(new File("res/hud.png"));
 
-            button = new JButton("Accept");
-            button.setVisible(false);
-            button.setPreferredSize(new Dimension(100, 20));
 
-            // button.setBorderPainted(false);
-            button.setBackground(new Color(0, 179, 0));
-            button.setForeground(Color.WHITE);
-            button.setBorder(new BasicBorders.ButtonBorder(hudColor, hudColor, hudColor, hudColor));
-            button.setFocusPainted(false);
-
-
-            button.addActionListener(e -> {
-                switch (gameState.currentPhase) {
-                    case FOLLOW:
-                        button.setText("End Turn");
-                        selectedTerritory = null;
-                        gameState.currentPhase = GamePhase.MOVE;
-                        this.repaint();
-                        break;
-                    case MOVE:
-                        button.setText("Accept");
-                        button.setVisible(false);
-                        selectedTerritory = null;
-                        moveAmount = 0;
-                        moveTarget = null;
-                        moveOrigin = null;
-                        gameState.currentPhase = GamePhase.ATTACKComputer;
-                        lastFight = computer.attack(gameState);
-                        //TODO: maybe add some fancy popup/window displaying the fight
-                        if (lastFight != null) {
-                            if (lastFight.apply()) {
-                                gameState.map.updateMonopol(lastFight.getDef());
-                                if (checkGameOver())
-                                    return;
-                                gameState.currentPhase = GamePhase.FOLLOWComputer;
-                            } else
-                                gameState.currentPhase = GamePhase.MOVEComputer;
-                        } else {
-                            gameState.currentPhase = GamePhase.MOVEComputer;
-                        }
-                        computer.doPostAttack(gameState, lastFight);
-                        this.repaint();
-                }
-            });
-            setLayout(new BorderLayout());
-            JPanel p = new JPanel();
-            p.setBackground(new Color(0, 0, 0, 0));
-            p.add(button);
-            add(p, BorderLayout.SOUTH);
 
             BufferedImage img = ImageIO.read(new File("res/cursor.png"));
             Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "risiko_cursor");
@@ -119,6 +71,55 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             errorMessage = "An error occurred while loading.\nError Message: " + e.getMessage();
         }
 
+        button = new JButton("Accept");
+        button.setVisible(false);
+        button.setPreferredSize(new Dimension(100, 20));
+
+        // button.setBorderPainted(false);
+        button.setBackground(new Color(0, 179, 0));
+        button.setForeground(Color.WHITE);
+        button.setBorder(new BasicBorders.ButtonBorder(hudColor, hudColor, hudColor, hudColor));
+        button.setFocusPainted(false);
+
+
+        button.addActionListener(e -> {
+            switch (gameState.currentPhase) {
+                case FOLLOW:
+                    button.setText("End Turn");
+                    selectedTerritory = null;
+                    gameState.currentPhase = GamePhase.MOVE;
+                    this.repaint();
+                    break;
+                case MOVE:
+                    button.setText("Accept");
+                    button.setVisible(false);
+                    selectedTerritory = null;
+                    moveAmount = 0;
+                    moveTarget = null;
+                    moveOrigin = null;
+                    gameState.currentPhase = GamePhase.ATTACKComputer;
+                    lastFight = computer.attack(gameState);
+                    //TODO: maybe add some fancy popup/window displaying the fight
+                    if (lastFight != null) {
+                        if (lastFight.apply()) {
+                            gameState.map.updateMonopol(lastFight.getDef());
+                            if (checkGameOver())
+                                return;
+                            gameState.currentPhase = GamePhase.FOLLOWComputer;
+                        } else
+                            gameState.currentPhase = GamePhase.MOVEComputer;
+                    } else {
+                        gameState.currentPhase = GamePhase.MOVEComputer;
+                    }
+                    computer.doPostAttack(gameState, lastFight);
+                    this.repaint();
+            }
+        });
+        setLayout(new BorderLayout());
+        JPanel p = new JPanel();
+        p.setBackground(new Color(0, 0, 0, 0));
+        p.add(button);
+        add(p, BorderLayout.SOUTH);
 
         addMouseListener(this);
         addMouseMotionListener(this);
