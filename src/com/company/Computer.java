@@ -26,7 +26,7 @@ public class Computer {
                     state.currentPhase = GamePhase.CLAIM;
                 break;
             case REINFORCEComputer: {
-                for (; state.armyComputer > 0; state.armyComputer--)
+                for (; state.reinforcementComputer > 0; state.reinforcementComputer--)
                     reinforceStrategy.getTerritory(state).addArmy(1);
                 if (state.map.containsTerritory(t -> t.getArmy() > 1 && state.map.getNeighbors(t, Territory.OWNED_COMP).size() > 0))
                     state.currentPhase = GamePhase.ATTACK;

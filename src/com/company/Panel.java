@@ -35,7 +35,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     private Font phaseFont; //Big font used for writing the current game phase name
     private Font smallFont; //Small font used for writing the armies and messages
-    private Font hoverFont; //small font used to write the name of hovered territory
+    private Font hoverFont; //small font used to write additional information
 
     private final static Color hudColor = new Color(0.12f, 0.12f, 0.12f);
 
@@ -158,13 +158,30 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 
             //Draw the name of the hovered territory at the top
+            String info = "";
             if (hoverTerritory != null) {
-                g.setColor(hudColor);
-                g.setFont(hoverFont);
-                String name = hoverTerritory.getName();
-                double stringWidth = g.getFontMetrics().getStringBounds(name, g).getWidth();
-                g.drawString(name, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
+                switch (gameState.currentPhase) {
+                    case ATTACK:
+                        if (hoverTerritory.getArmy() > 0) info = "select ";
+                        else info = "attack ";
+                    default:
+                        info += hoverTerritory.getName();
+                }
+
+            } else {
+                switch (gameState.currentPhase) {
+                    case REINFORCE:
+                        info = gameState.reinforcementPlayer + " reinforcements left";
+                }
             }
+
+            g.setColor(hudColor);
+            g.setFont(hoverFont);
+
+            double stringWidth = g.getFontMetrics().getStringBounds(info, g).getWidth();
+            g.drawString(info, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
+
+
 
         } else {
             drawCenteredText(errorMessage, g2);
@@ -184,10 +201,15 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         //Draw the spare armies of each opponent
         g.setFont(smallFont);
-        String playerString = Integer.toString(gameState.armyPlayer);
-        String computerString = Integer.toString(gameState.armyComputer);
-        g.drawString(playerString, (float) (195 - g.getFontMetrics().getStringBounds(playerString, g).getWidth()), 47);
-        g.drawString(computerString, 1055, 47);
+        gameState.updateCounters(); //update the stats before drawing them
+        String territoriesPlayer = Integer.toString(gameState.territoriesPlayer);
+        String territoriesComputer = Integer.toString(gameState.territoriesComputer);
+        String continentsPlayer = Integer.toString(gameState.continentsPlayer);
+        String continentsComputer = Integer.toString(gameState.continentsComputer);
+        g.drawString(territoriesPlayer, (float) (195 - g.getFontMetrics().getStringBounds(territoriesPlayer, g).getWidth()), 47);
+        g.drawString(territoriesComputer, GameConstants.WINDOW_WIDTH - 195, 47);
+        g.drawString(continentsPlayer, (float) (100 - g.getFontMetrics().getStringBounds(continentsPlayer, g).getWidth()), 47);
+        g.drawString(continentsComputer, GameConstants.WINDOW_WIDTH - 100, 47);
 
 
         //Draw the current game phase name
@@ -358,8 +380,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                         break;
                     case REINFORCE:
                         hoverTerritory.addArmy(1);
-                        gameState.armyPlayer--;
-                        if (gameState.armyPlayer <= 0) gameState.currentPhase = GamePhase.REINFORCEComputer;
+                        gameState.reinforcementPlayer--;
+                        if (gameState.reinforcementPlayer <= 0) gameState.currentPhase = GamePhase.REINFORCEComputer;
                         break;
                     case ATTACK:
                         //Select if territory is owned by the player

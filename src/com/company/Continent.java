@@ -15,6 +15,14 @@ public class Continent {
 
     private boolean isMonopolPlayer, isMonopolComp; //two booleans that save if the whole continent is owned by the player or the computer
 
+    public boolean isMonopolPlayer() {
+        return isMonopolPlayer;
+    }
+
+    public boolean isMonopolComp() {
+        return isMonopolComp;
+    }
+
     public int getBonus() {
         return bonus;
     }
