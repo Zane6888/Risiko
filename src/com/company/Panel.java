@@ -601,7 +601,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
     /**
      * Tries to save all necessary parts of the current game to 'saves/'
      *
-     * @return returns if saving has been successful
+     * @return returns true if saving has been successful
      */
     public boolean save() {
         if (GameConstants.ENABLE_SAVING && !errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
@@ -616,6 +616,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             } catch (Exception ex) {
                 System.err.print(ex.getMessage());
                 ex.printStackTrace();
+                return false;
             }
         } else {
             return false;
