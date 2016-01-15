@@ -54,11 +54,6 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             errorOccurred = true;
             errorMessage = "An error occurred while loading.\nError Message: " + e.getMessage();
         }
-
-        //Unhide the button if necessary
-        if (data.gameState.currentPhase == GamePhase.REINFORCE || data.gameState.currentPhase == GamePhase.MOVE
-                || data.gameState.currentPhase == GamePhase.FOLLOW)
-            button.setVisible(true);
     }
 
     /**
@@ -73,6 +68,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
         data = (PanelData) ois.readObject();
         ois.close();
         fis.close();
+
+        //Unhide the button if necessary
+        if (data.gameState.currentPhase == GamePhase.REINFORCE || data.gameState.currentPhase == GamePhase.MOVE
+                || data.gameState.currentPhase == GamePhase.FOLLOW)
+            button.setVisible(true);
 
     }
 
