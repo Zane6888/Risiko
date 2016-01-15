@@ -1,13 +1,14 @@
 package com.company;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class GameMap {
+public class GameMap implements Serializable {
     private List<Neighbors> neighbors;
     private List<Continent> continents;
 

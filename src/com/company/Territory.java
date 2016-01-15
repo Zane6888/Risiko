@@ -3,18 +3,18 @@ package com.company;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Territory {
+public class Territory implements Serializable {
     public static final Predicate<Territory> UNCLAIMED = t -> t.getArmy() == 0;
     public static final Predicate<Territory> OWNED_COMP = t -> t.getArmy() < 0;
     public static final Predicate<Territory> OWNED_PLAYER = t -> t.getArmy() > 0;
     public static final Predicate<Territory> CAN_ATTACK = t -> t.getArmy() > 1 || t.getArmy() < -1;
 
     private List<Polygon> patches = new LinkedList<>();
-    private final Area area = new Area();
     private Color color; //color of the territory
     private int army; //number of army, negative numbers are for the computer, positive for the player
 
@@ -34,6 +34,8 @@ public class Territory {
     }
 
     public Area getArea() {
+        Area area = new Area();
+        for (Polygon p : patches) area.add(new Area(p));
         return area;
     }
 
@@ -51,7 +53,7 @@ public class Territory {
 
     public Territory(List<Polygon> patches, String name, Point capital) {
         this.patches = patches;
-        for (Polygon p : patches) area.add(new Area(p));
+
         army = 0;
         this.name = name;
         this.capital = capital;

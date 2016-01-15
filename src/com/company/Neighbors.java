@@ -1,8 +1,9 @@
 package com.company;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Neighbors {
+public class Neighbors implements Serializable {
     public final Territory neighborOne;
     public final Territory neighborTwo;
 

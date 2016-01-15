@@ -2,16 +2,18 @@ package com.company;
 
 import java.awt.*;
 import java.awt.geom.Area;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
-public class Continent {
+public class Continent implements Serializable {
     private List<Territory> territories = new LinkedList<>();
     private int bonus; //number of bonus army when the whole continent is owned by one player
-    private Area borders; //combined area of all territories of the continent
+    private transient Area borders; //combined area of all territories of the continent
 
     private boolean isMonopolPlayer, isMonopolComp; //two booleans that save if the whole continent is owned by the player or the computer
 
@@ -33,6 +35,26 @@ public class Continent {
         borders = new Area();
         for (Territory t : territories) borders.add(t.getArea());
     }
+
+    private void writeObject(java.io.ObjectOutputStream stream)
+            throws IOException {
+        stream.writeObject(territories);
+        stream.writeInt(bonus);
+        stream.writeBoolean(isMonopolPlayer);
+        stream.writeBoolean(isMonopolComp);
+    }
+
+    private void readObject(java.io.ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        territories = (List<Territory>) stream.readObject();
+        bonus = stream.readInt();
+        isMonopolPlayer = stream.readBoolean();
+        isMonopolComp = stream.readBoolean();
+
+        borders = new Area();
+        for (Territory t : territories) borders.add(t.getArea());
+    }
+
 
     public void paintComponent(Graphics2D g, Territory hoverTerritory, Territory selectedTerritory) {
         //draws a yellow border arround the continent if it is owned by a single opponent

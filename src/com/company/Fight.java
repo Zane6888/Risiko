@@ -1,5 +1,7 @@
 package com.company;
 
+import java.io.Serializable;
+
 /**
  * Represents a single fight between two Territories
  * Do not change army values in the Territories between creating an instance of Fight and calling its apply method
@@ -7,7 +9,7 @@ package com.company;
  * Fancy display of the attack phase shall use instances of this class as input
  * apply() shall be called after all displays are are closed or immediately after creation if the fight is not displayed
  */
-public class Fight {
+public class Fight implements Serializable {
     //Fighting Territories
     private final Territory atk;
     private final Territory def;

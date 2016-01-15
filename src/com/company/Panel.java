@@ -11,24 +11,15 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.function.Predicate;
 
-public class Panel extends JPanel implements MouseListener, MouseMotionListener {
+public class Panel extends JPanel implements MouseListener, MouseMotionListener, Serializable {
     private JButton button;
 
     private Computer computer = new Computer();
 
-    private GameState gameState; //current game state
-    private Territory hoverTerritory;
-    private Territory selectedTerritory;
-
-    private Territory moveTarget;
-    private Territory moveOrigin;
-    private int moveAmount = 0;
-
-    private Fight lastFight;
+    private PanelData data;
 
     private BufferedImage hud; //a buffered image for the HUD
     private String won = ""; //Contains the name of the opponent that has won
@@ -51,9 +42,40 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
      */
     public Panel(String map) {
         super(true);
+
+        Initialize();
+
+        data = new PanelData();
+
+        //Load the map
         try {
-            //Load the map
-            gameState = new GameState(MapParser.parseMap(map));
+            data.gameState = new GameState(MapParser.parseMap(map));
+        } catch (Exception e) {
+            errorOccurred = true;
+            errorMessage = "An error occurred while loading.\nError Message: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Tries to create a new panel and deserialize the date from 'saves/game.ser'
+     */
+    public Panel() throws IOException, ClassNotFoundException {
+        super(true);
+        Initialize();
+
+        FileInputStream fis = new FileInputStream("saves/game.ser");
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        data = (PanelData) ois.readObject();
+        ois.close();
+        fis.close();
+
+    }
+
+    /**
+     * Initializes fonts, hud, button, mouse listeners
+     */
+    private void Initialize() {
+        try {
 
             //Load the font
             phaseFont = Font.createFont(Font.TRUETYPE_FONT,
@@ -65,8 +87,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             //Load the HUD image
             hud = ImageIO.read(new File("res/hud.png"));
 
-
-
+            //Set the cursor
             BufferedImage img = ImageIO.read(new File("res/cursor.png"));
             Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "risiko_cursor");
             setCursor(cursor);
@@ -76,11 +97,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             errorMessage = "An error occurred while loading.\nError Message: " + e.getMessage();
         }
 
+        //Add the button
         button = new JButton("Accept");
         button.setVisible(false);
         button.setPreferredSize(new Dimension(100, 20));
 
-        // button.setBorderPainted(false);
         button.setBackground(new Color(0, 179, 0));
         button.setForeground(Color.WHITE);
         button.setBorder(new BasicBorders.ButtonBorder(hudColor, hudColor, hudColor, hudColor));
@@ -88,35 +109,35 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 
         button.addActionListener(e -> {
-            switch (gameState.currentPhase) {
+            switch (data.gameState.currentPhase) {
                 case FOLLOW:
                     button.setText("End Turn");
-                    selectedTerritory = null;
-                    gameState.currentPhase = GamePhase.MOVE;
+                    data.selectedTerritory = null;
+                    data.gameState.currentPhase = GamePhase.MOVE;
                     this.repaint();
                     break;
                 case MOVE:
                     button.setText("Accept");
                     button.setVisible(false);
-                    selectedTerritory = null;
-                    moveAmount = 0;
-                    moveTarget = null;
-                    moveOrigin = null;
-                    gameState.currentPhase = GamePhase.ATTACKComputer;
-                    lastFight = computer.attack(gameState);
+                    data.selectedTerritory = null;
+                    data.moveAmount = 0;
+                    data.moveTarget = null;
+                    data.moveOrigin = null;
+                    data.gameState.currentPhase = GamePhase.ATTACKComputer;
+                    data.lastFight = computer.attack(data.gameState);
                     //TODO: maybe add some fancy popup/window displaying the fight
-                    if (lastFight != null) {
-                        if (lastFight.apply()) {
-                            gameState.map.updateMonopol(lastFight.getDef());
+                    if (data.lastFight != null) {
+                        if (data.lastFight.apply()) {
+                            data.gameState.map.updateMonopol(data.lastFight.getDef());
                             if (checkGameOver())
                                 return;
-                            gameState.currentPhase = GamePhase.FOLLOWComputer;
+                            data.gameState.currentPhase = GamePhase.FOLLOWComputer;
                         } else
-                            gameState.currentPhase = GamePhase.MOVEComputer;
+                            data.gameState.currentPhase = GamePhase.MOVEComputer;
                     } else {
-                        gameState.currentPhase = GamePhase.MOVEComputer;
+                        data.gameState.currentPhase = GamePhase.MOVEComputer;
                     }
-                    computer.doPostAttack(gameState, lastFight);
+                    computer.doPostAttack(data.gameState, data.lastFight);
                     this.repaint();
             }
         });
@@ -126,9 +147,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         p.add(button);
         add(p, BorderLayout.SOUTH);
 
+        //Add the mouse listeners
         addMouseListener(this);
         addMouseMotionListener(this);
-
     }
 
     @Override
@@ -142,15 +163,15 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         paintBackground(g2);
 
         if (!errorOccurred) {
-            gameState.map.paint(g2, hoverTerritory, selectedTerritory);
+            data.gameState.map.paint(g2, data.hoverTerritory, data.selectedTerritory);
             paintHUD(g2);
 
             //Draw the arrow to indicate movement
-            if (hoverTerritory != null) {
-                switch (gameState.currentPhase) {
+            if (data.hoverTerritory != null) {
+                switch (data.gameState.currentPhase) {
                     case ATTACK:
-                        if (selectedTerritory != null && hoverTerritory.getArmy() < 0) {
-                            drawArrow(g2, Color.YELLOW, selectedTerritory.getCapitalPosition(), hoverTerritory.getCapitalPosition());
+                        if (data.selectedTerritory != null && data.hoverTerritory.getArmy() < 0) {
+                            drawArrow(g2, Color.YELLOW, data.selectedTerritory.getCapitalPosition(), data.hoverTerritory.getCapitalPosition());
                         }
                         break;
                 }
@@ -159,19 +180,19 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
             //Draw the name of the hovered territory at the top
             String info = "";
-            if (hoverTerritory != null) {
-                switch (gameState.currentPhase) {
+            if (data.hoverTerritory != null) {
+                switch (data.gameState.currentPhase) {
                     case ATTACK:
-                        if (hoverTerritory.getArmy() > 0) info = "select ";
+                        if (data.hoverTerritory.getArmy() > 0) info = "select ";
                         else info = "attack ";
                     default:
-                        info += hoverTerritory.getName();
+                        info += data.hoverTerritory.getName();
                 }
 
             } else {
-                switch (gameState.currentPhase) {
+                switch (data.gameState.currentPhase) {
                     case REINFORCE:
-                        info = gameState.reinforcementPlayer + " reinforcements left";
+                        info = data.gameState.reinforcementPlayer + " reinforcements left";
                 }
             }
 
@@ -201,11 +222,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         //Draw the spare armies of each opponent
         g.setFont(smallFont);
-        gameState.updateCounters(); //update the stats before drawing them
-        String territoriesPlayer = Integer.toString(gameState.territoriesPlayer);
-        String territoriesComputer = Integer.toString(gameState.territoriesComputer);
-        String continentsPlayer = Integer.toString(gameState.continentsPlayer);
-        String continentsComputer = Integer.toString(gameState.continentsComputer);
+        data.gameState.updateCounters(); //update the stats before drawing them
+        String territoriesPlayer = Integer.toString(data.gameState.territoriesPlayer);
+        String territoriesComputer = Integer.toString(data.gameState.territoriesComputer);
+        String continentsPlayer = Integer.toString(data.gameState.continentsPlayer);
+        String continentsComputer = Integer.toString(data.gameState.continentsComputer);
         g.drawString(territoriesPlayer, (float) (195 - g.getFontMetrics().getStringBounds(territoriesPlayer, g).getWidth()), 47);
         g.drawString(territoriesComputer, GameConstants.WINDOW_WIDTH - 195, 47);
         g.drawString(continentsPlayer, (float) (100 - g.getFontMetrics().getStringBounds(continentsPlayer, g).getWidth()), 47);
@@ -215,7 +236,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         //Draw the current game phase name
         g.setFont(phaseFont);
         String currentPhase = "";
-        switch (gameState.currentPhase) {
+        switch (data.gameState.currentPhase) {
             case CLAIM:
             case CLAIMComputer:
                 currentPhase = "CLAIM";
@@ -242,7 +263,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         g.drawString(currentPhase, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 27);
 
         //Draw which opponent has won in case that the game is over
-        if (gameState.currentPhase == GamePhase.GameOver) {
+        if (data.gameState.currentPhase == GamePhase.GameOver) {
             g.setColor(new Color(1f, 1f, 1f, 0.5f));
             g.fillRect(0, 0, GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_HEIGHT);
             drawCenteredText(won + " has won!", g);
@@ -368,123 +389,124 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     public void mouseClicked(MouseEvent me) {
         //Only update if no error occured while loading and the game is not over yet
-        if (!errorOccurred && gameState.currentPhase != GamePhase.GameOver) {
-            if (hoverTerritory != null) {
-                switch (gameState.currentPhase) {
+        if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
+            if (data.hoverTerritory != null) {
+                switch (data.gameState.currentPhase) {
                     case CLAIM:
                         //Claim the hoveredTerritory and change the game phase to CLAIMComputer or reinforce if there are
                         //unclaimed territories left
-                        hoverTerritory.setArmy(1);
-                        gameState.map.updateMonopol(hoverTerritory);
-                        if (gameState.map.containsTerritory(Territory.UNCLAIMED))
-                            gameState.currentPhase = GamePhase.CLAIMComputer;
+                        data.hoverTerritory.setArmy(1);
+                        data.gameState.map.updateMonopol(data.hoverTerritory);
+                        if (data.gameState.map.containsTerritory(Territory.UNCLAIMED))
+                            data.gameState.currentPhase = GamePhase.CLAIMComputer;
                         else {
-                            gameState.currentPhase = GamePhase.REINFORCE;
-                            gameState.updateArmy();
+                            data.gameState.currentPhase = GamePhase.REINFORCE;
+                            data.gameState.updateArmy();
                         }
                         break;
                     case REINFORCE:
-                        hoverTerritory.addArmy(1);
-                        gameState.reinforcementPlayer--;
-                        if (gameState.reinforcementPlayer <= 0) gameState.currentPhase = GamePhase.REINFORCEComputer;
+                        data.hoverTerritory.addArmy(1);
+                        data.gameState.reinforcementPlayer--;
+                        if (data.gameState.reinforcementPlayer <= 0)
+                            data.gameState.currentPhase = GamePhase.REINFORCEComputer;
                         break;
                     case ATTACK:
                         //Select if territory is owned by the player
-                        if (Territory.OWNED_PLAYER.test(hoverTerritory))
-                            selectedTerritory = hoverTerritory;
+                        if (Territory.OWNED_PLAYER.test(data.hoverTerritory))
+                            data.selectedTerritory = data.hoverTerritory;
                             //Attack if territory is owned by the computer
                         else {
-                            lastFight = new Fight(selectedTerritory, hoverTerritory);
+                            data.lastFight = new Fight(data.selectedTerritory, data.hoverTerritory);
                             //TODO: maybe add some fancy popup/window displaying the fight
-                            if (lastFight.apply()) {
+                            if (data.lastFight.apply()) {
                                 //Fight has been won
-                                gameState.map.updateMonopol(lastFight.getDef());
+                                data.gameState.map.updateMonopol(data.lastFight.getDef());
                                 if (checkGameOver())
                                     return;
-                                selectedTerritory = hoverTerritory;
-                                gameState.currentPhase = GamePhase.FOLLOW;
+                                data.selectedTerritory = data.hoverTerritory;
+                                data.gameState.currentPhase = GamePhase.FOLLOW;
                             } else {
                                 //Fight has not been won
-                                selectedTerritory = null;
-                                gameState.currentPhase = GamePhase.MOVE;
+                                data.selectedTerritory = null;
+                                data.gameState.currentPhase = GamePhase.MOVE;
                                 button.setText("End Turn");
                             }
-                            hoverTerritory = null;
+                            data.hoverTerritory = null;
                             button.setVisible(true);
                         }
                         break;
                     case FOLLOW:
-                        if (hoverTerritory != selectedTerritory)
+                        if (data.hoverTerritory != data.selectedTerritory)
                             break;
                         //Move one army to the new territory
-                        if (lastFight.getAtk().getArmy() > 1 && me.getButton() == MouseEvent.BUTTON1) {
-                            lastFight.getAtk().addArmy(-1);
-                            lastFight.getDef().addArmy(1);
+                        if (data.lastFight.getAtk().getArmy() > 1 && me.getButton() == MouseEvent.BUTTON1) {
+                            data.lastFight.getAtk().addArmy(-1);
+                            data.lastFight.getDef().addArmy(1);
                         }
                         //Move one army to the old territory
-                        if (lastFight.getDef().getArmy() > lastFight.getOccupyingArmy()
+                        if (data.lastFight.getDef().getArmy() > data.lastFight.getOccupyingArmy()
                                 && me.getButton() == MouseEvent.BUTTON3) {
-                            lastFight.getAtk().addArmy(1);
-                            lastFight.getDef().addArmy(-1);
+                            data.lastFight.getAtk().addArmy(1);
+                            data.lastFight.getDef().addArmy(-1);
                         }
                         break;
                     case MOVE:
                         //Select the hovered territory
-                        if (selectedTerritory == null) {
-                            selectedTerritory = hoverTerritory;
+                        if (data.selectedTerritory == null) {
+                            data.selectedTerritory = data.hoverTerritory;
                             break;
-                        } else if (me.getButton() == MouseEvent.BUTTON1 && hoverTerritory.getArmy() > 1) {
-                            selectedTerritory = hoverTerritory;
+                        } else if (me.getButton() == MouseEvent.BUTTON1 && data.hoverTerritory.getArmy() > 1) {
+                            data.selectedTerritory = data.hoverTerritory;
                         }
                         //Move army between two territories
                         else if (me.getButton() == MouseEvent.BUTTON3) {
                             //Only change move target and origin if they are not set yet or no armies are moved yet
-                            if ((moveTarget == null || moveAmount == 0)
-                                    && gameState.map.getNeighbors(selectedTerritory, Territory.OWNED_PLAYER).contains(hoverTerritory)) {
-                                moveTarget = hoverTerritory;
-                                moveOrigin = selectedTerritory;
+                            if ((data.moveTarget == null || data.moveAmount == 0)
+                                    && data.gameState.map.getNeighbors(data.selectedTerritory, Territory.OWNED_PLAYER).contains(data.hoverTerritory)) {
+                                data.moveTarget = data.hoverTerritory;
+                                data.moveOrigin = data.selectedTerritory;
                                 moveOne(false);
                             }
                             //Move the armies accordingly
-                            else if (moveTarget == hoverTerritory && moveOrigin == selectedTerritory) {
+                            else if (data.moveTarget == data.hoverTerritory && data.moveOrigin == data.selectedTerritory) {
                                 moveOne(false);
-                            } else if (moveOrigin == hoverTerritory && moveTarget == selectedTerritory) {
+                            } else if (data.moveOrigin == data.hoverTerritory && data.moveTarget == data.selectedTerritory) {
                                 moveOne(true);
                             }
                         }
 
                 }
-            } else if (gameState.currentPhase != GamePhase.FOLLOW && moveAmount == 0)
+            } else if (data.gameState.currentPhase != GamePhase.FOLLOW && data.moveAmount == 0)
                 //Deselect if no territory is hovered
-                selectedTerritory = null;
+                data.selectedTerritory = null;
 
 
-            computer.doTurn(gameState); //let the computer move
+            computer.doTurn(data.gameState); //let the computer move
             repaint();
         }
     }
 
     /**
-     * Moves one army between moveTarget and moveOrigin
+     * Moves one army between data.moveTarget and data.moveOrigin
      * @param back if true army is moved from target to origin, from origin to target otherwise
      */
     private void moveOne(boolean back) {
         if (back) {
-            if (moveTarget.getArmy() > 1) {
-                moveAmount--;
-                moveTarget.addArmy(-1);
-                moveOrigin.addArmy(1);
-                if (moveAmount == 0) {
-                    moveTarget = null;
-                    moveOrigin = null;
-                    selectedTerritory = null;
+            if (data.moveTarget.getArmy() > 1) {
+                data.moveAmount--;
+                data.moveTarget.addArmy(-1);
+                data.moveOrigin.addArmy(1);
+                if (data.moveAmount == 0) {
+                    data.moveTarget = null;
+                    data.moveOrigin = null;
+                    data.selectedTerritory = null;
                 }
             }
         } else {
-            if (moveOrigin.getArmy() > 1) {
-                moveAmount++;
-                moveTarget.addArmy(1);
-                moveOrigin.addArmy(-1);
+            if (data.moveOrigin.getArmy() > 1) {
+                data.moveAmount++;
+                data.moveTarget.addArmy(1);
+                data.moveOrigin.addArmy(-1);
             }
         }
     }
@@ -494,28 +516,28 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
      * @return returns true iff the game is over
      */
     private boolean checkGameOver() {
-        if (gameState.map.containsTerritory(Territory.UNCLAIMED))
+        if (data.gameState.map.containsTerritory(Territory.UNCLAIMED))
             return false;
-        boolean player = gameState.map.containsTerritory(Territory.OWNED_PLAYER);
-        boolean comp = gameState.map.containsTerritory(Territory.OWNED_COMP);
+        boolean player = data.gameState.map.containsTerritory(Territory.OWNED_PLAYER);
+        boolean comp = data.gameState.map.containsTerritory(Territory.OWNED_COMP);
         if (player && comp)
             return false;
 
         won = player ? "PLAYER" : "COMPUTER";
 
-        gameState.currentPhase = GamePhase.GameOver;
-        selectedTerritory = null;
+        data.gameState.currentPhase = GamePhase.GameOver;
+        data.selectedTerritory = null;
         repaint();
         return true;
     }
 
     public void mouseMoved(MouseEvent me) {
         //Only update if no error occurred and game is not over yet
-        if (!errorOccurred && gameState.currentPhase != GamePhase.GameOver) {
+        if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
             Predicate<Territory> hoverable = t -> true;
 
             //Set hoverable according to current game phase
-            switch (gameState.currentPhase) {
+            switch (data.gameState.currentPhase) {
                 case CLAIM:
                     hoverable = Territory.UNCLAIMED;
                     break;
@@ -523,41 +545,41 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     hoverable = Territory.OWNED_PLAYER;
                     break;
                 case ATTACK:
-                    if (selectedTerritory != null)
+                    if (data.selectedTerritory != null)
                         //Select all territories from player that can attack
                         //and all territories that are neighbors of selection and owned by computer
                         hoverable = (Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER))
-                                .or(t -> gameState.map.getNeighbors(selectedTerritory, Territory.OWNED_COMP).contains(t));
+                                .or(t -> data.gameState.map.getNeighbors(data.selectedTerritory, Territory.OWNED_COMP).contains(t));
                     else
                         //Select all territories from player that can attack and have neighbors that
                         //are owned by the computer
                         hoverable = Territory.CAN_ATTACK.and(Territory.OWNED_PLAYER)
-                                .and(t -> gameState.map.getNeighbors(t, Territory.OWNED_COMP).size() > 0);
+                                .and(t -> data.gameState.map.getNeighbors(t, Territory.OWNED_COMP).size() > 0);
                     break;
                 case FOLLOW:
-                    hoverable = t -> t == selectedTerritory;
+                    hoverable = t -> t == data.selectedTerritory;
                     break;
                 case MOVE:
                     //Only if no territory is selected and no army has been moved yet
-                    if (selectedTerritory == null && moveAmount == 0)
+                    if (data.selectedTerritory == null && data.moveAmount == 0)
                         hoverable = t -> t.getArmy() > 1
-                                && gameState.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0;
-                        //If move origin has already been set via selectedTerritory
-                    else if (moveTarget == null || moveAmount == 0)
+                                && data.gameState.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0;
+                        //If move origin has already been set via data.selectedTerritory
+                    else if (data.moveTarget == null || data.moveAmount == 0)
                         hoverable = t -> (t.getArmy() > 1
-                                && gameState.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0)
-                                || gameState.map.getNeighbors(selectedTerritory, Territory.OWNED_PLAYER).contains(t);
+                                && data.gameState.map.getNeighbors(t, Territory.OWNED_PLAYER).size() > 0)
+                                || data.gameState.map.getNeighbors(data.selectedTerritory, Territory.OWNED_PLAYER).contains(t);
                         //If move origin and target have been selected
                     else
-                        hoverable = t -> t == moveTarget || t == moveOrigin;
+                        hoverable = t -> t == data.moveTarget || t == data.moveOrigin;
             }
 
             //Test hovered territory if it is hoverable
-            Territory old = hoverTerritory;
-            hoverTerritory = gameState.map.findTerritory(me.getX(), me.getY());
-            if (hoverTerritory != null && !hoverable.test(hoverTerritory))
-                hoverTerritory = null;
-            if (old != hoverTerritory) //only repaint if hovered territory has changed
+            Territory old = data.hoverTerritory;
+            data.hoverTerritory = data.gameState.map.findTerritory(me.getX(), me.getY());
+            if (data.hoverTerritory != null && !hoverable.test(data.hoverTerritory))
+                data.hoverTerritory = null;
+            if (old != data.hoverTerritory) //only repaint if hovered territory has changed
                 repaint();
         }
     }
@@ -575,4 +597,31 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     }
 
     public void mouseReleased(MouseEvent me) { }
+
+    /**
+     * Tries to save all necessary parts of the current game to 'saves/'
+     *
+     * @return returns if saving has been successful
+     */
+    public boolean save() {
+        if (GameConstants.ENABLE_SAVING && !errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
+            try {
+                FileOutputStream fout = new FileOutputStream("saves/game.ser");
+                ObjectOutputStream oos = new ObjectOutputStream(fout);
+                oos.writeObject(data);
+                oos.close();
+                fout.close();
+
+
+            } catch (Exception ex) {
+                System.err.print(ex.getMessage());
+                ex.printStackTrace();
+            }
+        } else {
+            return false;
+        }
+
+
+        return true;
+    }
 }

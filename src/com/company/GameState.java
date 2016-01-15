@@ -1,6 +1,9 @@
 package com.company;
 
-public class GameState {
+import java.io.Serializable;
+
+public class GameState implements Serializable {
+
     public int reinforcementPlayer = 0; //number of spare armies possessed by the player
     public int reinforcementComputer = 0; //number of spare armies possessed by the computer
 

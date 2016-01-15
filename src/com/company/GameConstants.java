@@ -5,11 +5,14 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class GameConstants {
+
     public final static int WINDOW_WIDTH = 1250;
     public final static int WINDOW_HEIGHT = 650;
 
     public static final int MAP_HEIGHT = 600; //Height of the tilted map
     public static final int MAP_WIDTH = 1000; //Minimum width of the tilted map
+
+    public static final boolean ENABLE_SAVING = true;
 
     public static final Color BORDER_COLOR_CONTINENT = new Color(30, 30, 30);
     public static final Color BORDER_COLOR_MONOPOL = Color.YELLOW;
