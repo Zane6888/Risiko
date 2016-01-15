@@ -321,7 +321,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     }
 
     /**
-     * Draws an arrow to symbolies movement between territories
+     * Draws an arrow to symbolise movement between territories
+     * Shortens it by 13 px of length on both sides to not overlap the capitals
      *
      * @param g Graphics2D that is drawn on
      * @param c Color the arrow is drawn in
@@ -334,13 +335,18 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         arrowHead.addPoint(10, 0);
 
 
-        Point vector = new Point(from.x - to.x, from.y - to.x); //vector of the arrow
+        Point vector = new Point(to.x - from.x, to.y - from.y); //vector of the arrow
         double vectorLenght = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
         Point2D.Double unitVector = new Point2D.Double(vector.x / vectorLenght, vector.y / vectorLenght); //unit vector
 
-        //TODO doesnt work
-        to = new Point(to.x - (int) (unitVector.x * 10), to.y - (int) (unitVector.y * 10)); //shorten the line to fit the arrow head
-        //TODO also shorten the line on both sides to not overlap the capitals (Radius of capitals = 13)
+
+        //Shorten the arrow
+        to = new Point(to.x - (int) (unitVector.x * 20), to.y - (int) (unitVector.y * 20)); //shorten the line to fit the arrow head
+        to = new Point(to.x - (int) (unitVector.x * 13), to.y - (int) (unitVector.y * 13)); //shorten the line at the end to not overlap capital
+        from = new Point(from.x + (int) (unitVector.x * 13), from.y + (int) (unitVector.y * 13)); //shorten the line at the end to not overlap capital
+
+
+        //The head is drawn to a new Graphics2D object in order to rotate it with an AffineTransform
 
         AffineTransform at = new AffineTransform(); //AffineTransform to rotate the arrow head
         at.setToIdentity();
@@ -348,15 +354,14 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         at.translate(to.x, to.y); //Move the arrow head to the end point
         at.rotate((angle - Math.PI / 2d)); //Rotate the arrow
 
+        //Draw the line of the arrow
         g.setColor(c);
         g.setStroke(new BasicStroke(7));
         g.drawLine(from.x, from.y, to.x, to.y);
-        g.fill(arrowHead); //Draw the line of the arrow
 
         Graphics2D g2 = (Graphics2D) g.create(); //new Graphics2D for the rotation
         g2.setTransform(at);
         g2.fill(arrowHead);
-        g.fill(arrowHead);
         g2.dispose();
     }
 
