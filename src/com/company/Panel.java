@@ -12,6 +12,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.function.Predicate;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
@@ -627,24 +629,24 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
      * @return returns true if saving has been successful
      */
     public boolean save() {
-        if (GameConstants.ENABLE_SAVING && !errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
-            try {
+
+        try {
+            if (GameConstants.ENABLE_SAVING && !errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
+
                 FileOutputStream fout = new FileOutputStream("saves/game.ser");
                 ObjectOutputStream oos = new ObjectOutputStream(fout);
                 oos.writeObject(data);
                 oos.close();
                 fout.close();
+            } else if (data.gameState.currentPhase != GamePhase.GameOver) {
+                Files.deleteIfExists(Paths.get("saves/game.ser"));
+            } else return false;
 
-
-            } catch (Exception ex) {
-                System.err.print(ex.getMessage());
-                ex.printStackTrace();
-                return false;
-            }
-        } else {
+        } catch (Exception ex) {
+            System.err.print(ex.getMessage());
+            ex.printStackTrace();
             return false;
         }
-
 
         return true;
     }
