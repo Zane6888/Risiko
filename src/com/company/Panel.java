@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.function.Predicate;
 
-public class Panel extends JPanel implements MouseListener, MouseMotionListener, Serializable {
+public class Panel extends JPanel implements MouseListener, MouseMotionListener {
     private JButton button;
 
     private Computer computer = new Computer();
@@ -130,7 +130,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
                     data.moveOrigin = null;
                     data.gameState.currentPhase = GamePhase.ATTACKComputer;
                     data.lastFight = computer.attack(data.gameState);
-                    //TODO: maybe add some fancy popup/window displaying the fight
+
                     if (data.lastFight != null) {
                         if (data.lastFight.apply()) {
                             data.gameState.map.updateMonopol(data.lastFight.getDef());
@@ -208,6 +208,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             g.drawString(info, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
 
 
+            if (data.gameState.currentPhase == GamePhase.FIGHT && data.lastFight != null) {
+                data.lastFight.drawFight(g2);
+            }
 
         } else {
             drawCenteredText(errorMessage, g2);
@@ -252,6 +255,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
                 break;
             case ATTACK:
             case ATTACKComputer:
+            case FIGHT:
                 currentPhase = "ATTACK";
                 break;
             case MOVE:
@@ -394,7 +398,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
 
     public void mouseClicked(MouseEvent me) {
         //Only update if no error occured while loading and the game is not over yet
-        if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
+        if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver && data.gameState.currentPhase != GamePhase.FIGHT) {
             if (data.hoverTerritory != null) {
                 switch (data.gameState.currentPhase) {
                     case CLAIM:
@@ -419,25 +423,39 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
                         //Select if territory is owned by the player
                         if (Territory.OWNED_PLAYER.test(data.hoverTerritory))
                             data.selectedTerritory = data.hoverTerritory;
-                            //Attack if territory is owned by the computer
-                        else {
+
+                        else { //Attack if territory is owned by the computer
+
+                            //Create new Fight
                             data.lastFight = new Fight(data.selectedTerritory, data.hoverTerritory);
-                            //TODO: maybe add some fancy popup/window displaying the fight
-                            if (data.lastFight.apply()) {
-                                //Fight has been won
-                                data.gameState.map.updateMonopol(data.lastFight.getDef());
-                                if (checkGameOver())
-                                    return;
-                                data.selectedTerritory = data.hoverTerritory;
-                                data.gameState.currentPhase = GamePhase.FOLLOW;
-                            } else {
-                                //Fight has not been won
-                                data.selectedTerritory = null;
-                                data.gameState.currentPhase = GamePhase.MOVE;
-                                button.setText("End Turn");
-                            }
-                            data.hoverTerritory = null;
-                            button.setVisible(true);
+                            data.gameState.currentPhase = GamePhase.FIGHT;
+
+                            //Timer to update and redraw during the fighting phase
+                            Timer timer = new Timer(1000, e -> { //TODO change frame rate of fight display here
+                                if (data.lastFight.update()) {
+                                    //Fight is finished
+
+                                    if (data.lastFight.getDef().getArmy() > 0) { //Fight has been won
+                                        data.gameState.map.updateMonopol(data.lastFight.getDef());
+                                        if (checkGameOver())
+                                            return;
+                                        data.selectedTerritory = data.hoverTerritory;
+                                        data.gameState.currentPhase = GamePhase.FOLLOW;
+                                    } else { //Fight has not been won
+                                        data.selectedTerritory = null;
+                                        data.gameState.currentPhase = GamePhase.MOVE;
+                                        button.setText("End Turn");
+
+                                    }
+                                    data.hoverTerritory = null;
+                                    button.setVisible(true); //next state: Move or follow
+
+                                    ((Timer) e.getSource()).stop(); //stop the timer as it is no longer needer
+
+                                }
+                                this.repaint();
+                            });
+                            timer.start();
                         }
                         break;
                     case FOLLOW:
@@ -538,7 +556,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
 
     public void mouseMoved(MouseEvent me) {
         //Only update if no error occurred and game is not over yet
-        if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
+        if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver && data.gameState.currentPhase != GamePhase.FIGHT) {
             Predicate<Territory> hoverable = t -> true;
 
             //Set hoverable according to current game phase

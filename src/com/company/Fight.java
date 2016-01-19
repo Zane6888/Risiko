@@ -1,5 +1,6 @@
 package com.company;
 
+import java.awt.*;
 import java.io.Serializable;
 
 /**
@@ -123,5 +124,28 @@ public class Fight implements Serializable {
             atk.addArmy(-deathAtk);
             return false;
         }
+    }
+
+    /**
+     * Makes one step in the fight
+     *
+     * @return returns true iff the fight is over
+     */
+    public boolean update() {
+        //TODO dont apply the whole fight at once
+        apply();
+        return true;
+
+    }
+
+    /**
+     * Draws the current state of the fight with the given Graphics2D
+     *
+     * @param g Graphics2D to draw on
+     */
+    public void drawFight(Graphics2D g) {
+        //TODO actually draw the fight
+        //Idea: http://www.x-oo.com/flash-online-games/brettspiele/world-wars-2.html
+        g.drawOval(0, 0, 1000, 1000);
     }
 }
