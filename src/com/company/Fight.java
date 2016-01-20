@@ -1,6 +1,10 @@
 package com.company;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -14,6 +18,31 @@ public class Fight implements Serializable {
     //Fighting Territories
     private final Territory atk;
     private final Territory def;
+
+    public static BufferedImage[] die;
+    public static BufferedImage[] tank;
+
+    /**
+     * Must be called before any instance of Fight is used
+     */
+    static void loadImages() {
+        die = new BufferedImage[6];
+        tank = new BufferedImage[3];
+        try {
+            die[0] = ImageIO.read(new File("res/one.png"));
+            die[1] = ImageIO.read(new File("res/two.png"));
+            die[2] = ImageIO.read(new File("res/three.png"));
+            die[3] = ImageIO.read(new File("res/four.png"));
+            die[4] = ImageIO.read(new File("res/five.png"));
+            die[5] = ImageIO.read(new File("res/six.png"));
+            tank[0] = ImageIO.read(new File("res/oneTank.png"));
+            tank[1] = ImageIO.read(new File("res/twoTank.png"));
+            tank[2] = ImageIO.read(new File("res/threeTank.png"));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public Territory getAtk() {
         return atk;
@@ -144,8 +173,58 @@ public class Fight implements Serializable {
      * @param g Graphics2D to draw on
      */
     public void drawFight(Graphics2D g) {
-        //TODO actually draw the fight
-        //Idea: http://www.x-oo.com/flash-online-games/brettspiele/world-wars-2.html
-        g.drawOval(0, 0, 1000, 1000);
+        //Draw the background
+        drawBackground(g, atk.getArmy()>0);
+
+        //Draw the dices
+        int startY = (GameConstants.WINDOW_HEIGHT - ((diceAtk.length-1)*70 + die[0].getHeight()))/2;
+        for (int i = 0; i < diceAtk.length; i++) {
+            g.drawImage(die[diceAtk[i]-1],(GameConstants.WINDOW_WIDTH-margin*2)/3 + margin + 20, startY+70*i, null);
+        }
+
+        startY = (GameConstants.WINDOW_HEIGHT - ((diceDef.length-1)*70 + die[0].getHeight()))/2;
+        for (int i = 0; i < diceDef.length; i++) {
+            g.drawImage(die[diceDef[i]-1],(GameConstants.WINDOW_WIDTH-margin*2)/3*2 + margin - 20 - die[0].getWidth(), startY+70*i, null);
+        }
+
+        //Draw the tanks
+        g.drawImage(tank[diceAtk.length-1], (GameConstants.WINDOW_WIDTH-margin*2)/3 + margin - tank[diceAtk.length-1].getWidth(), (GameConstants.WINDOW_HEIGHT-tank[diceAtk.length-1].getHeight())/2, null);
+        g.drawImage(tank[diceDef.length-1], (GameConstants.WINDOW_WIDTH-margin*2)/3*2 + margin + tank[diceAtk.length-1].getWidth(), (GameConstants.WINDOW_HEIGHT-tank[diceAtk.length-1].getHeight())/2, -1*tank[diceDef.length-1].getWidth(), tank[diceDef.length-1].getHeight(), null);
+
+
+    }
+
+    private static int margin = 180;
+
+
+    /**
+     * Draws a rectangle with rounded corners split in red, white and blue
+     * @param g Graphics2D to draw on
+     */
+    private static void drawBackground(Graphics2D g, boolean playerAttacks) {
+        int cornerRadius = 40;
+        int width = (GameConstants.WINDOW_WIDTH-margin*2)/3;
+        int height = GameConstants.WINDOW_HEIGHT-margin*2;
+
+        //Draw the left section
+        if (playerAttacks) g.setColor(Color.BLUE);
+        else g.setColor(Color.RED);
+        g.fillRect(margin+cornerRadius,margin,width-cornerRadius, height);
+        g.fillOval(margin, margin, 2 * cornerRadius, 2 * cornerRadius);
+        g.fillOval(margin, height+margin-2*cornerRadius, 2*cornerRadius, 2*cornerRadius);
+        g.fillRect(margin, margin+cornerRadius, cornerRadius, height-2*cornerRadius);
+
+        //Draw the middle section
+        g.setColor(new Color(1.0f, 1.0f, 1.0f, 0.6f));
+        g.fillRect(margin+width, margin, width, height);
+
+        //Draw the right section
+        if (playerAttacks) g.setColor(Color.RED);
+        else g.setColor(Color.BLUE);
+        g.fillRect(margin+2*width, margin, width-cornerRadius, height);
+        g.fillOval(3*width+margin-2*cornerRadius, margin, 2 * cornerRadius, 2 * cornerRadius);
+        g.fillOval(3*width+margin-2*cornerRadius, height+margin-2*cornerRadius, 2*cornerRadius, 2*cornerRadius);
+        g.fillRect(3*width+margin-cornerRadius, margin+cornerRadius, cornerRadius, height-2*cornerRadius);
+
     }
 }
