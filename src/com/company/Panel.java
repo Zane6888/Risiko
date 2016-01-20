@@ -99,6 +99,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "risiko_cursor");
             setCursor(cursor);
 
+            //Load the images for displaying the fight
+            Fight.loadImages();
+
         } catch (Exception e) {
             errorOccurred = true;
             errorMessage = "An error occurred while loading.\nError Message: " + e.getMessage();
@@ -397,6 +400,25 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         g2.dispose();
     }
 
+    /**
+     * Takes all the steps necessary to prepare for the next game phase
+     */
+    private void afterFight() {
+        if (data.lastFight.getDef().getArmy() > 0) { //Fight has been won
+            data.gameState.map.updateMonopol(data.lastFight.getDef());
+            if (checkGameOver())
+                return;
+            data.selectedTerritory = data.hoverTerritory;
+            data.gameState.currentPhase = GamePhase.FOLLOW;
+        } else { //Fight has not been won
+            data.selectedTerritory = null;
+            data.gameState.currentPhase = GamePhase.MOVE;
+            button.setText("End Turn");
+
+        }
+        data.hoverTerritory = null;
+        button.setVisible(true); //next state: Move or follow
+    }
 
     public void mouseClicked(MouseEvent me) {
         //Only update if no error occured while loading and the game is not over yet
@@ -433,24 +455,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             data.gameState.currentPhase = GamePhase.FIGHT;
 
                             //Timer to update and redraw during the fighting phase
-                            Timer timer = new Timer(1000, e -> { //TODO change frame rate of fight display here
+                            Timer timer = new Timer(5000, e -> { //TODO change frame rate of fight display here
                                 if (data.lastFight.update()) {
                                     //Fight is finished
 
-                                    if (data.lastFight.getDef().getArmy() > 0) { //Fight has been won
-                                        data.gameState.map.updateMonopol(data.lastFight.getDef());
-                                        if (checkGameOver())
-                                            return;
-                                        data.selectedTerritory = data.hoverTerritory;
-                                        data.gameState.currentPhase = GamePhase.FOLLOW;
-                                    } else { //Fight has not been won
-                                        data.selectedTerritory = null;
-                                        data.gameState.currentPhase = GamePhase.MOVE;
-                                        button.setText("End Turn");
-
-                                    }
-                                    data.hoverTerritory = null;
-                                    button.setVisible(true); //next state: Move or follow
+                                    afterFight();
 
                                     ((Timer) e.getSource()).stop(); //stop the timer as it is no longer needer
 
@@ -632,6 +641,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         try {
             if (GameConstants.ENABLE_SAVING && !errorOccurred && data.gameState.currentPhase != GamePhase.GameOver) {
+
+                //Finish the fight if the game is currently in the fight phase
+                if (data.gameState.currentPhase == GamePhase.FIGHT) {
+                    while (!data.lastFight.update()) ;
+                    afterFight();
+                }
 
                 FileOutputStream fout = new FileOutputStream("saves/game.ser");
                 ObjectOutputStream oos = new ObjectOutputStream(fout);
