@@ -19,9 +19,9 @@ public class GameConstants {
 
     public static final Color BORDER_COLOR_TERRITORY = new Color(60, 60, 60);
 
-    public static final TexturePaint HATCHED_PAINT = initializeHatchedPaint();
+    public static final TexturePaint HATCHED_PAINT;
 
-    private static TexturePaint initializeHatchedPaint() {
+    static {
         BufferedImage bufferedImage =
                 new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
 
@@ -31,7 +31,7 @@ public class GameConstants {
         g2.drawLine(0, 10, 10, 0); // /
 
         Rectangle2D rect = new Rectangle2D.Double(0, 0, 10, 10);
-        return new TexturePaint(bufferedImage, rect);
+        HATCHED_PAINT = new TexturePaint(bufferedImage, rect);
     }
 
     public static final String DEFAULT_MAP = "maps/world.map";
