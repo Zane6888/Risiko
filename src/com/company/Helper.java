@@ -43,7 +43,7 @@ public class Helper {
     }
 
     public static int dice() {
-        return rnd.nextInt(5) + 1;
+        return rnd.nextInt(6) + 1;
     }
 
     public static int max(int[] arr) {
