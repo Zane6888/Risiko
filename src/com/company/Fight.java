@@ -19,22 +19,22 @@ public class Fight implements Serializable {
     private final Territory atk;
     private final Territory def;
 
-    public static BufferedImage[] die;
+    public static BufferedImage[] dice;
     public static BufferedImage[] tank;
 
     /**
      * Must be called before any instance of Fight is used
      */
     static void loadImages() {
-        die = new BufferedImage[6];
+        dice = new BufferedImage[6];
         tank = new BufferedImage[3];
         try {
-            die[0] = ImageIO.read(new File("res/one.png"));
-            die[1] = ImageIO.read(new File("res/two.png"));
-            die[2] = ImageIO.read(new File("res/three.png"));
-            die[3] = ImageIO.read(new File("res/four.png"));
-            die[4] = ImageIO.read(new File("res/five.png"));
-            die[5] = ImageIO.read(new File("res/six.png"));
+            dice[0] = ImageIO.read(new File("res/one.png"));
+            dice[1] = ImageIO.read(new File("res/two.png"));
+            dice[2] = ImageIO.read(new File("res/three.png"));
+            dice[3] = ImageIO.read(new File("res/four.png"));
+            dice[4] = ImageIO.read(new File("res/five.png"));
+            dice[5] = ImageIO.read(new File("res/six.png"));
             tank[0] = ImageIO.read(new File("res/oneTank.png"));
             tank[1] = ImageIO.read(new File("res/twoTank.png"));
             tank[2] = ImageIO.read(new File("res/threeTank.png"));
@@ -107,11 +107,14 @@ public class Fight implements Serializable {
 
         for (int i = 0; i < armyA; i++)
             diceAtk[i] = Helper.dice();
+        Helper.sortDescending(diceAtk);
 
         diceDef = new int[armyD];
 
         for (int i = 0; i < armyD; i++)
             diceDef[i] = Helper.dice();
+        Helper.sortDescending(diceDef);
+
 
         duelAtk = new int[]{Helper.max(diceAtk), -1};
         duelDef = new int[]{Helper.max(diceDef), -1};
@@ -176,15 +179,32 @@ public class Fight implements Serializable {
         //Draw the background
         drawBackground(g, atk.getArmy()>0);
 
-        //Draw the dices
-        int startY = (GameConstants.WINDOW_HEIGHT - ((diceAtk.length-1)*70 + die[0].getHeight()))/2;
-        for (int i = 0; i < diceAtk.length; i++) {
-            g.drawImage(die[diceAtk[i]-1],(GameConstants.WINDOW_WIDTH-margin*2)/3 + margin + 20, startY+70*i, null);
+        //Draw the dices and arrows
+        int startYAtk = (GameConstants.WINDOW_HEIGHT - ((diceAtk.length-1)*70 + dice[0].getHeight()))/2;
+        int startYDef = (GameConstants.WINDOW_HEIGHT - ((diceDef.length-1)*70 + dice[0].getHeight()))/2;
+
+        int startXAtk = (GameConstants.WINDOW_WIDTH-margin*2)/3 + margin + 20;
+        int startXDef = (GameConstants.WINDOW_WIDTH-margin*2)/3*2 + margin - 20 - dice[0].getWidth();
+
+        //Draw the arrows
+        for (int i = 0; i < Math.min(diceDef.length, diceAtk.length); i++) {
+            Point atkPoint = new Point(startXAtk+dice[0].getWidth(),startYAtk + dice[0].getHeight()/2 + 70*i);
+            Point defPoint = new Point(startXDef, startYDef + dice[0].getHeight()/2 + 70 * i);
+            if (diceAtk[i] > diceDef[i]) {
+                Helper.drawArrow(g, Color.GREEN, atkPoint, defPoint);
+            }
+            else {
+                Helper.drawArrow(g, Color.YELLOW, defPoint, atkPoint);
+            }
         }
 
-        startY = (GameConstants.WINDOW_HEIGHT - ((diceDef.length-1)*70 + die[0].getHeight()))/2;
+        //Draw the dices
+        for (int i = 0; i < diceAtk.length; i++) {
+            g.drawImage(dice[diceAtk[i]-1],startXAtk, startYAtk+70*i, null);
+        }
+
         for (int i = 0; i < diceDef.length; i++) {
-            g.drawImage(die[diceDef[i]-1],(GameConstants.WINDOW_WIDTH-margin*2)/3*2 + margin - 20 - die[0].getWidth(), startY+70*i, null);
+            g.drawImage(dice[diceDef[i]-1],startXDef, startYDef+70*i, null);
         }
 
         //Draw the tanks

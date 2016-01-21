@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -364,40 +363,14 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
      */
     private void drawArrow(Graphics2D g, Color c, Point from, Point to) {
 
-        Polygon arrowHead = new Polygon();
-        arrowHead.addPoint(0, 20);
-        arrowHead.addPoint(-10, 0);
-        arrowHead.addPoint(10, 0);
-
-
-        Point vector = new Point(to.x - from.x, to.y - from.y); //vector of the arrow
-        double vectorLenght = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
-        Point2D.Double unitVector = new Point2D.Double(vector.x / vectorLenght, vector.y / vectorLenght); //unit vector
-
-
         //Shorten the arrow
-        to = new Point(to.x - (int) (unitVector.x * 20), to.y - (int) (unitVector.y * 20)); //shorten the line to fit the arrow head
+        Point2D.Double unitVector = Helper.getUnitVector(from, to);
         to = new Point(to.x - (int) (unitVector.x * 13), to.y - (int) (unitVector.y * 13)); //shorten the line at the end to not overlap capital
         from = new Point(from.x + (int) (unitVector.x * 13), from.y + (int) (unitVector.y * 13)); //shorten the line at the end to not overlap capital
 
+        //Draw the arrow
+        Helper.drawArrow(g, c, from, to);
 
-        //The head is drawn to a new Graphics2D object in order to rotate it with an AffineTransform
-
-        AffineTransform at = new AffineTransform(); //AffineTransform to rotate the arrow head
-        at.setToIdentity();
-        double angle = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX()); //angle of the arrow
-        at.translate(to.x, to.y); //Move the arrow head to the end point
-        at.rotate((angle - Math.PI / 2d)); //Rotate the arrow
-
-        //Draw the line of the arrow
-        g.setColor(c);
-        g.setStroke(new BasicStroke(7));
-        g.drawLine(from.x, from.y, to.x, to.y);
-
-        Graphics2D g2 = (Graphics2D) g.create(); //new Graphics2D for the rotation
-        g2.setTransform(at);
-        g2.fill(arrowHead);
-        g2.dispose();
     }
 
     /**
