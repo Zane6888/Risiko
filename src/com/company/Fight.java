@@ -131,11 +131,11 @@ public class Fight implements Serializable {
     }
 
     /**
-     * Applies the change in armys to the Territories
+     * Applies the change in armies to the Territories
      *
      * @return true if the attacker now occupies the defending Territory
      */
-    public boolean apply() {
+    private boolean apply() {
         if (applied)
             throw new IllegalStateException("Fight was already applied previously");
         applied = true;
@@ -176,15 +176,20 @@ public class Fight implements Serializable {
      * @param g Graphics2D to draw on
      */
     public void drawFight(Graphics2D g) {
-        //Draw the background
-        drawBackground(g, atk.getArmy()>0);
+        boolean playerAttacks = atk.getArmy()>0;
 
-        //Draw the dices and arrows
+        //Draw the background
+        drawBackground(g, playerAttacks);
+        int width = (GameConstants.WINDOW_WIDTH-margin*2)/3; //width of one segment of the rectangle
+        int height = (GameConstants.WINDOW_HEIGHT-margin*2); //height of the rectangle
+
         int startYAtk = (GameConstants.WINDOW_HEIGHT - ((diceAtk.length-1)*70 + dice[0].getHeight()))/2;
         int startYDef = (GameConstants.WINDOW_HEIGHT - ((diceDef.length-1)*70 + dice[0].getHeight()))/2;
 
-        int startXAtk = (GameConstants.WINDOW_WIDTH-margin*2)/3 + margin + 20;
-        int startXDef = (GameConstants.WINDOW_WIDTH-margin*2)/3*2 + margin - 20 - dice[0].getWidth();
+        int startXAtk = width + margin + 20;
+        int startXDef = width*2 + margin - 20 - dice[0].getWidth();
+
+
 
         //Draw the arrows
         for (int i = 0; i < Math.min(diceDef.length, diceAtk.length); i++) {
@@ -208,10 +213,13 @@ public class Fight implements Serializable {
         }
 
         //Draw the tanks
-        g.drawImage(tank[diceAtk.length-1], (GameConstants.WINDOW_WIDTH-margin*2)/3 + margin - tank[diceAtk.length-1].getWidth(), (GameConstants.WINDOW_HEIGHT-tank[diceAtk.length-1].getHeight())/2, null);
-        g.drawImage(tank[diceDef.length-1], (GameConstants.WINDOW_WIDTH-margin*2)/3*2 + margin + tank[diceAtk.length-1].getWidth(), (GameConstants.WINDOW_HEIGHT-tank[diceAtk.length-1].getHeight())/2, -1*tank[diceDef.length-1].getWidth(), tank[diceDef.length-1].getHeight(), null);
+        g.drawImage(tank[diceAtk.length-1], width + margin - tank[diceAtk.length-1].getWidth(), (GameConstants.WINDOW_HEIGHT-tank[diceAtk.length-1].getHeight())/2, null);
+        g.drawImage(tank[diceDef.length-1], width*2 + margin + tank[diceAtk.length-1].getWidth(), (GameConstants.WINDOW_HEIGHT-tank[diceAtk.length-1].getHeight())/2, -1*tank[diceDef.length-1].getWidth(), tank[diceDef.length-1].getHeight(), null);
 
-
+        //Draw the names of the territories
+        g.setColor(GameConstants.HUD_COLOR);
+        g.drawString(atk.getName(), margin+width/2f - (float)g.getFontMetrics().getStringBounds(atk.getName(), g).getWidth()/2f,margin+height-20);
+        g.drawString(def.getName(), margin+width*2.5f - (float)g.getFontMetrics().getStringBounds(def.getName(), g).getWidth()/2f,margin+height-20);
     }
 
     private static int margin = 180;

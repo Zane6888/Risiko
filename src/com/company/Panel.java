@@ -24,7 +24,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private JButton button; //a button to end the current phase
 
     private BufferedImage hud; //a buffered image for the HUD    private Font phaseFont; //Big font used for writing the current game phase name
-    private final static Color hudColor = new Color(0.12f, 0.12f, 0.12f);
+    
     //A radial gradient paint for the blue background
     private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000,
             new float[]{0.0f, 0.5f}, new Color[]{new Color(150, 216, 255), new Color(89, 193, 255)});
@@ -114,7 +114,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         button.setBackground(new Color(0, 179, 0));
         button.setForeground(Color.WHITE);
-        button.setBorder(new BasicBorders.ButtonBorder(hudColor, hudColor, hudColor, hudColor));
+        button.setBorder(new BasicBorders.ButtonBorder(GameConstants.HUD_COLOR, GameConstants.HUD_COLOR, GameConstants.HUD_COLOR, GameConstants.HUD_COLOR));
         button.setFocusPainted(false);
 
         //Add an action listener to react when button is clicked
@@ -203,7 +203,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 }
             }
 
-            g.setColor(hudColor);
+            g.setColor(GameConstants.HUD_COLOR);
             g.setFont(hoverFont);
 
             double stringWidth = g.getFontMetrics().getStringBounds(info, g).getWidth();
@@ -228,7 +228,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private void paintHUD(Graphics2D g) {
         g.drawImage(hud, 0, 0, null); //Draw the hud
 
-        g.setColor(hudColor);
+        g.setColor(GameConstants.HUD_COLOR);
 
         //Draw the spare armies of each opponent
         g.setFont(smallFont);
@@ -423,20 +423,6 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             data.gameState.currentPhase = GamePhase.MOVEComputer;
             computer.doPostAttack(data.gameState, data.lastFight);
         }
-
-
-       /*if (data.lastFight != null) {
-            if (data.lastFight.apply()) {
-                data.gameState.map.updateMonopol(data.lastFight.getDef());
-                if (checkGameOver())
-                    return;
-                data.gameState.currentPhase = GamePhase.FOLLOWComputer;
-            } else
-                data.gameState.currentPhase = GamePhase.MOVEComputer;
-        } else {
-            data.gameState.currentPhase = GamePhase.MOVEComputer;
-        }
-        computer.doPostAttack(data.gameState, data.lastFight);*/
     }
 
     public void mouseClicked(MouseEvent me) {
@@ -474,7 +460,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             data.gameState.currentPhase = GamePhase.FIGHT;
 
                             //Timer to update and redraw during the fighting phase
-                            Timer timer = new Timer(5000, e -> { //TODO change frame rate of fight display here
+                            Timer timer = new Timer(2500, e -> {
                                 if (data.lastFight.update()) {
                                     //Fight is finished
                                     afterFight();

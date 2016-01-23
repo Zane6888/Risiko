@@ -14,6 +14,8 @@ public class GameConstants {
 
     public static final boolean ENABLE_SAVING = true;
 
+    public final static Color HUD_COLOR = new Color(0.12f, 0.12f, 0.12f); //Font color of the HUD
+
     public static final Color BORDER_COLOR_CONTINENT = new Color(30, 30, 30);
     public static final Color BORDER_COLOR_MONOPOL = Color.YELLOW;
 
