@@ -16,23 +16,24 @@ import java.nio.file.Paths;
 import java.util.function.Predicate;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
-    private JButton button;
 
     private Computer computer = new Computer();
 
     private PanelData data;
 
-    private BufferedImage hud; //a buffered image for the HUD
-    private String won = ""; //Contains the name of the opponent that has won
+    private JButton button; //a button to end the current phase
 
-    private Font phaseFont; //Big font used for writing the current game phase name
+    private BufferedImage hud; //a buffered image for the HUD    private Font phaseFont; //Big font used for writing the current game phase name
+    private final static Color hudColor = new Color(0.12f, 0.12f, 0.12f);
+    //A radial gradient paint for the blue background
+    private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000,
+            new float[]{0.0f, 0.5f}, new Color[]{new Color(150, 216, 255), new Color(89, 193, 255)});
+
     private Font smallFont; //Small font used for writing the armies and messages
     private Font hoverFont; //small font used to write additional information
+    private Font phaseFont; //Big font used for writing the current game phase name
 
-    private final static Color hudColor = new Color(0.12f, 0.12f, 0.12f);
-
-    //A radial gradient paint for the blue background
-    private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000, new float[]{0.0f, 0.5f}, new Color[]{new Color(150, 216, 255), new Color(89, 193, 255)});
+    private String won = ""; //Contains the name of the opponent that has won
 
     private boolean errorOccurred = false;  //Boolean indicating whether an error occurred while loading the Panel
     private String errorMessage = ""; //String for the error message if an error occurred while loading
@@ -58,7 +59,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     }
 
     /**
-     * Tries to create a new panel and deserialize the date from 'saves/game.ser'
+     * Tries to create a new panel and deserialize the data from 'saves/game.ser'
      */
     public Panel() throws IOException, ClassNotFoundException {
         super(true);
@@ -116,22 +117,26 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         button.setBorder(new BasicBorders.ButtonBorder(hudColor, hudColor, hudColor, hudColor));
         button.setFocusPainted(false);
 
-
+        //Add an action listener to react when button is clicked
         button.addActionListener(e -> {
             switch (data.gameState.currentPhase) {
                 case FOLLOW:
-                    button.setText("End Turn");
+                    button.setText("End Turn"); //sSet text for the MOVE game phase
                     data.selectedTerritory = null;
                     data.gameState.currentPhase = GamePhase.MOVE;
                     this.repaint();
                     break;
                 case MOVE:
-                    button.setText("Accept");
+                    button.setText("Accept"); //set text for the FOLLOW game phase
                     button.setVisible(false);
                     data.selectedTerritory = null;
+
+                    //Reset data for next MOVE game phase
                     data.moveAmount = 0;
                     data.moveTarget = null;
                     data.moveOrigin = null;
+
+                    //Let the computer attack
                     data.gameState.currentPhase = GamePhase.ATTACKComputer;
                     data.lastFight = computer.attack(data.gameState);
 
@@ -164,6 +169,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         Graphics2D g2 = (Graphics2D) g; //generate a Graphics2D to enable antialiasing and make more functionality available
 
         //Activate antialiasing
@@ -172,7 +178,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         paintBackground(g2);
 
         if (!errorOccurred) {
+
+            //Draw the map
             data.gameState.map.paint(g2, data.hoverTerritory, data.selectedTerritory);
+
+            //Draw the hud
             paintHUD(g2);
 
             //Draw the arrow to indicate movement
@@ -186,8 +196,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 }
             }
 
-
-            //Draw the name of the hovered territory at the top
+            //Draw additional status information under the current game phase
             String info = "";
             if (data.hoverTerritory != null) {
                 switch (data.gameState.currentPhase) {
@@ -216,7 +225,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 data.lastFight.drawFight(g2);
             }
 
-        } else {
+        } else { //an error occurred and is written on the screen
             drawCenteredText(errorMessage, g2);
         }
 

@@ -8,6 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * Represents a territory with an capital and armies
+ */
 public class Territory implements Serializable {
     public static final Predicate<Territory> UNCLAIMED = t -> t.getArmy() == 0;
     public static final Predicate<Territory> OWNED_COMP = t -> t.getArmy() < 0;
@@ -33,6 +36,9 @@ public class Territory implements Serializable {
         this.army += this.army < 0 ? -army : army;
     }
 
+    /**
+     * @return returns an Area containing all the patches of the territory
+     */
     public Area getArea() {
         Area area = new Area();
         for (Polygon p : patches) area.add(new Area(p));
@@ -114,7 +120,7 @@ public class Territory implements Serializable {
     }
 
     /**
-     * Determines wheter a Point is within a territory or not
+     * Determines whether a Point is within a territory or not
      *
      * @param x x Position
      * @param y y Position

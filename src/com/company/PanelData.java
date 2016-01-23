@@ -2,6 +2,9 @@ package com.company;
 
 import java.io.Serializable;
 
+/**
+ * Contains all the information that needs to be serialized in order to save the game
+ */
 public class PanelData implements Serializable {
     public GameState gameState; //current game state
 

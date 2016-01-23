@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Window extends JFrame {
+
     public Window(String map) {
-        if (map == null || map.equals("")) {
+        if (map == null || map.equals("")) { //no map is given
             System.out.println("No map specified, trying to load saves/game.ser");
-            try {
+            try {  //Try to load saved map
                 Panel game = new Panel();
                 add(game);
 
@@ -26,7 +27,7 @@ public class Window extends JFrame {
                 addPanel(map);
             }
 
-        } else addPanel(map);
+        } else addPanel(map); //Map is specified, try to load it
 
         this.setSize(GameConstants.WINDOW_WIDTH, GameConstants.WINDOW_HEIGHT);
         this.setTitle("All those territories");
@@ -34,6 +35,10 @@ public class Window extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
+    /**
+     * Makes a new instance of Panel and adds a shutdown hook to save the game when window is closed
+     * @param map the location of the map file the Panel is created with
+     */
     private void addPanel(String map) {
         try {
             Panel game = new Panel(new Scanner(new File(map)).useDelimiter("\\Z").next());
