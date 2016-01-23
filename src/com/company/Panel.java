@@ -136,22 +136,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     data.moveTarget = null;
                     data.moveOrigin = null;
 
-                    //Let the computer attack
-                    data.gameState.currentPhase = GamePhase.ATTACKComputer;
-                    data.lastFight = computer.attack(data.gameState);
 
-                    if (data.lastFight != null) {
-                        if (data.lastFight.apply()) {
-                            data.gameState.map.updateMonopol(data.lastFight.getDef());
-                            if (checkGameOver())
-                                return;
-                            data.gameState.currentPhase = GamePhase.FOLLOWComputer;
-                        } else
-                            data.gameState.currentPhase = GamePhase.MOVEComputer;
-                    } else {
-                        data.gameState.currentPhase = GamePhase.MOVEComputer;
-                    }
-                    computer.doPostAttack(data.gameState, data.lastFight);
+
+                    //Let the computer attack
+                    moveComputer();
+
                     this.repaint();
             }
         });
@@ -402,6 +391,54 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         button.setVisible(true); //next state: Move or follow
     }
 
+    /**
+     * Completes the game phases ATTACK, FOLLOW and MOVE for the computer
+     */
+    private void moveComputer() {
+        data.gameState.currentPhase = GamePhase.ATTACKComputer;
+        data.lastFight = computer.attack(data.gameState);
+
+        if (data.lastFight != null) {
+            data.gameState.currentPhase = GamePhase.FIGHT;
+
+            //Timer to update and redraw during the fighting phase
+            Timer timer = new Timer(1800, e -> {
+                if (data.lastFight.update()) { //the fight is over
+                    if (data.lastFight.getAtk().getArmy()<0) { //Fight has been won
+                        data.gameState.map.updateMonopol(data.lastFight.getDef());
+                        if (checkGameOver())
+                            return;
+                        data.gameState.currentPhase = GamePhase.FOLLOWComputer;
+                    }
+                    else data.gameState.currentPhase = GamePhase.MOVEComputer;
+
+                    computer.doPostAttack(data.gameState, data.lastFight);
+
+                    ((Timer) e.getSource()).stop(); //stop the timer as it is no longer needed
+                }
+                this.repaint();
+            });
+            timer.start();
+        } else {
+            data.gameState.currentPhase = GamePhase.MOVEComputer;
+            computer.doPostAttack(data.gameState, data.lastFight);
+        }
+
+
+       /*if (data.lastFight != null) {
+            if (data.lastFight.apply()) {
+                data.gameState.map.updateMonopol(data.lastFight.getDef());
+                if (checkGameOver())
+                    return;
+                data.gameState.currentPhase = GamePhase.FOLLOWComputer;
+            } else
+                data.gameState.currentPhase = GamePhase.MOVEComputer;
+        } else {
+            data.gameState.currentPhase = GamePhase.MOVEComputer;
+        }
+        computer.doPostAttack(data.gameState, data.lastFight);*/
+    }
+
     public void mouseClicked(MouseEvent me) {
         //Only update if no error occured while loading and the game is not over yet
         if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver && data.gameState.currentPhase != GamePhase.FIGHT) {
@@ -440,11 +477,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             Timer timer = new Timer(5000, e -> { //TODO change frame rate of fight display here
                                 if (data.lastFight.update()) {
                                     //Fight is finished
-
                                     afterFight();
 
-                                    ((Timer) e.getSource()).stop(); //stop the timer as it is no longer needer
-
+                                    ((Timer) e.getSource()).stop(); //stop the timer as it is no longer needed
                                 }
                                 this.repaint();
                             });
@@ -600,18 +635,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         }
     }
 
-    public void mouseDragged(MouseEvent me) {
-    }
-
-    public void mousePressed(MouseEvent me) {
-    }
-
-    public void mouseExited(MouseEvent me) {
-    }
-
-    public void mouseEntered(MouseEvent me) {
-    }
-
+    public void mouseDragged(MouseEvent me) { }
+    public void mousePressed(MouseEvent me) { }
+    public void mouseExited(MouseEvent me) { }
+    public void mouseEntered(MouseEvent me) { }
     public void mouseReleased(MouseEvent me) { }
 
     /**
