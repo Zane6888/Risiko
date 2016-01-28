@@ -72,7 +72,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         fis.close();
 
         //Unhide the button if necessary
-        if (data.gameState.currentPhase == GamePhase.REINFORCE || data.gameState.currentPhase == GamePhase.MOVE
+        if (data.gameState.currentPhase == GamePhase.MOVE
                 || data.gameState.currentPhase == GamePhase.FOLLOW)
             button.setVisible(true);
 
