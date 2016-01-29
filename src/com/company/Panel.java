@@ -643,6 +643,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     afterFight();
                 }
 
+                if (!Files.exists(Paths.get("saves"))) {
+                    Files.createDirectory(Paths.get("saves"));
+                }
+
                 FileOutputStream fout = new FileOutputStream("saves/game.ser");
                 ObjectOutputStream oos = new ObjectOutputStream(fout);
                 oos.writeObject(data);
