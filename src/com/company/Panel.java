@@ -406,8 +406,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 if (data.lastFight.update()) { //the fight is over
                     if (data.lastFight.getAtk().getArmy()<0) { //Fight has been won
                         data.gameState.map.updateMonopol(data.lastFight.getDef());
-                        if (checkGameOver())
+                        if (checkGameOver()) {
+                            ((Timer) e.getSource()).stop();
                             return;
+                        }
                         data.gameState.currentPhase = GamePhase.FOLLOWComputer;
                     }
                     else data.gameState.currentPhase = GamePhase.MOVEComputer;
