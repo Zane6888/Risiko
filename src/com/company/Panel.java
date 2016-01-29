@@ -521,6 +521,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 
             computer.doTurn(data.gameState); //let the computer move
+            if (data.gameState.currentPhase == GamePhase.MOVE) {
+                button.setVisible(true);
+                button.setText("End Turn");
+            }
             repaint();
         }
     }
