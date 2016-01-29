@@ -652,7 +652,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 oos.writeObject(data);
                 oos.close();
                 fout.close();
-            } else if (data.gameState.currentPhase != GamePhase.GameOver) {
+            } else if (data.gameState.currentPhase == GamePhase.GameOver) {
                 Files.deleteIfExists(Paths.get("saves/game.ser"));
             } else return false;
 
