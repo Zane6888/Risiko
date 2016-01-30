@@ -402,7 +402,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             data.gameState.currentPhase = GamePhase.FIGHT;
 
             //Timer to update and redraw during the fighting phase
-            Timer timer = new Timer(1800, e -> {
+            Timer timer = new Timer(GameConstants.FIGHT_TIME_COMPUTER, e -> {
                 if (data.lastFight.update()) { //the fight is over
                     if (data.lastFight.getAtk().getArmy()<0) { //Fight has been won
                         data.gameState.map.updateMonopol(data.lastFight.getDef());
@@ -462,7 +462,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                             data.gameState.currentPhase = GamePhase.FIGHT;
 
                             //Timer to update and redraw during the fighting phase
-                            Timer timer = new Timer(2500, e -> {
+                            Timer timer = new Timer(GameConstants.FIGHT_TIME_PLAYER, e -> {
                                 if (data.lastFight.update()) {
                                     //Fight is finished
                                     afterFight();

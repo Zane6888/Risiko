@@ -12,6 +12,10 @@ public class Computer {
     public PlainStrategy moveStrategy = s -> {
     };
 
+    /**
+     * Takes all necessary actions for either the CLAIM or the REINFOCRE phase depending on the current GamePhase
+     * @param state
+     */
     public void doTurn(GameState state) {
         switch (state.currentPhase) {
             case CLAIMComputer:

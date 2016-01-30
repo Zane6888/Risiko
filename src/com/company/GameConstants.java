@@ -23,7 +23,7 @@ public class GameConstants {
 
     public static final TexturePaint HATCHED_PAINT;
 
-    static {
+    static { //initialise HATCHED_PAINT
         BufferedImage bufferedImage =
                 new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
 
@@ -35,6 +35,9 @@ public class GameConstants {
         Rectangle2D rect = new Rectangle2D.Double(0, 0, 10, 10);
         HATCHED_PAINT = new TexturePaint(bufferedImage, rect);
     }
+
+    public static final int FIGHT_TIME_PLAYER = 2500;
+    public static final int FIGHT_TIME_COMPUTER = 1800;
 
     public static final String DEFAULT_MAP = "maps/world.map";
 }
