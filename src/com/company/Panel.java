@@ -24,6 +24,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private JButton button; //a button to end the current phase
 
     private BufferedImage hud; //a buffered image for the HUD    private Font phaseFont; //Big font used for writing the current game phase name
+    private BufferedImage tanks; //a buffered image as symbol for the number of reinforcement in the REINFORCE game phase
     
     //A radial gradient paint for the blue background
     private final static RadialGradientPaint backgroundPaint = new RadialGradientPaint(new Point2D.Float(625, 325), 1000,
@@ -91,8 +92,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             smallFont = phaseFont.deriveFont(16F);
             hoverFont = phaseFont.deriveFont(14F);
 
-            //Load the HUD image
+            //Load the images
             hud = ImageIO.read(new File("res/hud.png"));
+            tanks = ImageIO.read(new File("res/tanks.png"));
 
             //Set the cursor
             BufferedImage img = ImageIO.read(new File("res/cursor.png"));
@@ -185,29 +187,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 }
             }
 
-            //Draw additional status information under the current game phase
-            String info = "";
-            if (data.hoverTerritory != null) {
-                switch (data.gameState.currentPhase) {
-                    case ATTACK:
-                        if (data.hoverTerritory.getArmy() > 0) info = "select ";
-                        else info = "attack ";
-                    default:
-                        info += data.hoverTerritory.getName();
-                }
 
-            } else {
-                switch (data.gameState.currentPhase) {
-                    case REINFORCE:
-                        info = data.gameState.reinforcementPlayer + " reinforcements left";
-                }
-            }
-
-            g.setColor(GameConstants.HUD_COLOR);
-            g.setFont(hoverFont);
-
-            double stringWidth = g.getFontMetrics().getStringBounds(info, g).getWidth();
-            g.drawString(info, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
 
 
             if (data.gameState.currentPhase == GamePhase.FIGHT && data.lastFight != null) {
@@ -239,9 +219,17 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         String continentsComputer = Integer.toString(data.gameState.continentsComputer);
         g.drawString(territoriesPlayer, (float) (195 - g.getFontMetrics().getStringBounds(territoriesPlayer, g).getWidth()), 47);
         g.drawString(territoriesComputer, GameConstants.WINDOW_WIDTH - 195, 47);
-        g.drawString(continentsPlayer, (float) (100 - g.getFontMetrics().getStringBounds(continentsPlayer, g).getWidth()), 47);
-        g.drawString(continentsComputer, GameConstants.WINDOW_WIDTH - 100, 47);
+        g.drawString(continentsPlayer, (float) (115 - g.getFontMetrics().getStringBounds(continentsPlayer, g).getWidth()), 47);
+        g.drawString(continentsComputer, GameConstants.WINDOW_WIDTH - 115, 47);
 
+        //Draw the number of reinforcements in the reinforce game phase
+        if (data.gameState.currentPhase == GamePhase.REINFORCE) {
+            g.drawImage(tanks, 0,0,null);
+            String reinforcementsPlayer = Integer.toString(data.gameState.reinforcementPlayer);
+            String reinforcementsComputer = Integer.toString(data.gameState.reinforcementComputer);
+            g.drawString(reinforcementsPlayer, 77,74);
+            g.drawString(reinforcementsComputer, GameConstants.WINDOW_WIDTH-77-(float)(g.getFontMetrics().getStringBounds(reinforcementsComputer, g).getWidth()),74);
+        }
 
         //Draw the current game phase name
         g.setFont(phaseFont);
@@ -272,6 +260,31 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         }
         double stringWidth = g.getFontMetrics().getStringBounds(currentPhase, g).getWidth();
         g.drawString(currentPhase, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 27);
+
+
+        //Draw additional status information under the current game phase
+        String info = "";
+        if (data.hoverTerritory != null) {
+            switch (data.gameState.currentPhase) {
+                case ATTACK:
+                    if (data.hoverTerritory.getArmy() > 0) info = "select ";
+                    else info = "attack ";
+                default:
+                    info += data.hoverTerritory.getName();
+            }
+
+        } else {
+            switch (data.gameState.currentPhase) {
+                case REINFORCE:
+                    info = data.gameState.reinforcementPlayer + " reinforcements left";
+            }
+        }
+
+        g.setColor(GameConstants.HUD_COLOR);
+        g.setFont(hoverFont);
+
+        stringWidth = g.getFontMetrics().getStringBounds(info, g).getWidth();
+        g.drawString(info, (int) (GameConstants.WINDOW_WIDTH / 2f - stringWidth / 2), 55);
 
         //Draw which opponent has won in case that the game is over
         if (data.gameState.currentPhase == GamePhase.GameOver) {
