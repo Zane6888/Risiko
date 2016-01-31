@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Represents a single fight between two Territories
@@ -53,28 +55,12 @@ public class Fight implements Serializable {
     }
 
     //Results of all rolled dice, length == # of fighting armies
-    private int[] diceAtk;
-    private int[] diceDef;
-
-    public int[] getDiceAtk() {
-        return diceAtk;
-    }
-
-    public int[] getDiceDef() {
-        return diceDef;
-    }
+    private Integer[] diceAtk;
+    private Integer[] diceDef;
 
     //Indexes of the dice rolls being compared to determine the outcome of the Fight
     private int[] duelAtk;
     private int[] duelDef;
-
-    public int[] getDuelDef() {
-        return duelDef;
-    }
-
-    public int[] getDuelAtk() {
-        return duelAtk;
-    }
 
     private int occupyingArmy = -1;
 
@@ -103,30 +89,24 @@ public class Fight implements Serializable {
         int armyA = Math.min(Math.abs(atk.getArmy()) - 1, 3);
         int armyD = Math.min(Math.abs(def.getArmy()), 2);
 
-        diceAtk = new int[armyA];
+        diceAtk = new Integer[armyA];
 
         for (int i = 0; i < armyA; i++)
             diceAtk[i] = Helper.dice();
-        Helper.sortDescending(diceAtk);
+        Arrays.sort(diceAtk, Collections.reverseOrder());
 
-        diceDef = new int[armyD];
+        diceDef = new Integer[armyD];
 
         for (int i = 0; i < armyD; i++)
             diceDef[i] = Helper.dice();
-        Helper.sortDescending(diceDef);
+        Arrays.sort(diceAtk, Collections.reverseOrder());
 
-
-        duelAtk = new int[]{Helper.max(diceAtk), -1};
-        duelDef = new int[]{Helper.max(diceDef), -1};
+        duelAtk = new int[]{0, -1};
+        duelDef = new int[]{0, -1};
 
         if (diceAtk.length > 1 && diceDef.length > 1) {
-            diceAtk[duelAtk[0]] *= -1;
-            duelAtk[1] = Helper.max(diceAtk);
-            diceAtk[duelAtk[0]] *= -1;
-
-            diceDef[duelDef[0]] *= -1;
-            duelDef[1] = Helper.max(diceDef);
-            diceDef[duelDef[0]] *= -1;
+            duelAtk[1] = 1;
+            duelDef[1] = 1;
         }
     }
 

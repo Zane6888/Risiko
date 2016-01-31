@@ -52,18 +52,6 @@ public class Helper {
     }
 
     /**
-     * Returns the highest element of an int array
-     */
-    public static int max(int[] arr) {
-        int index = 0;
-
-        for (int i = 1; i < arr.length; i++)
-            if (arr[i] > arr[index])
-                index = i;
-        return index;
-    }
-
-    /**
      * Maps a Float f, that is in the range of in_min and in_max, to an range of out_min and out_max
      *
      * @param f       the value that is to map
@@ -121,54 +109,5 @@ public class Helper {
         Point vector = new Point(to.x - from.x, to.y - from.y); //vector of the arrow
         double vectorLength = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
         return new Point2D.Double(vector.x / vectorLength, vector.y / vectorLength); //unit vector
-    }
-
-    /**
-     * Sorts an array descending using the QuickSort algorithm
-     * @param array int[] array that should be sorted
-     */
-    public static void sortDescending(int[] array) {
-        quickSort(array, 0, array.length-1);
-    }
-
-    /**
-     * Sorts an array descending using the QuickSort algorithm
-     * @param array int[] array that should be sorted
-     * @param low starting element
-     * @param high end element
-     */
-    private static void quickSort(int[] array, int low, int high) {
-        int i = low;
-        int j = high;
-        int pivot = array[(low + high) / 2]; //take the middle of the search spectrum as pivot element
-
-        //divide the array in a part that is greater than the pivot and one that is smaller
-        while (i <= j) {
-            while (array[i] > pivot) {
-                i++;
-            }
-            while (pivot > array[j]) {
-                j--;
-            }
-
-            if (i <= j) {
-                int h = array[i];
-                array[i] = array[j];
-                array[j] = h;
-
-                i++;
-                j--;
-            }
-        }
-
-        //do the same with each half
-        if (low < i - 1) {
-            quickSort(array, low, i - 1);
-        }
-        if (i < high) {
-            quickSort(array, i, high);
-        }
-
-
     }
 }
