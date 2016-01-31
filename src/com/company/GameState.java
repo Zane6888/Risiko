@@ -10,10 +10,6 @@ public class GameState implements Serializable {
     public int territoriesPlayer = 0; //number of territories possessed by the player
     public int territoriesComputer = 0; //number of territories possessed by the computer
 
-    //TODO maybe also update and draw the sum of all armies too
-    public int armyPlayer = 0; //sum of all armies of the player
-    public int armyComputer = 0; //sum of all armies of the computer
-
     public int continentsPlayer = 0;  //number of continents possessed by the player
     public int continentsComputer = 0; //number of continents possessed by the computer
 

@@ -44,10 +44,16 @@ public class Helper {
         return new Color(Color.HSBtoRGB(hsb[0], hsb[1], brightness));
     }
 
+    /**
+     * Returns a random integer between 1 and 6
+     */
     public static int dice() {
         return rnd.nextInt(6) + 1;
     }
 
+    /**
+     * Returns the highest element of an int array
+     */
     public static int max(int[] arr) {
         int index = 0;
 

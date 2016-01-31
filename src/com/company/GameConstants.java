@@ -36,6 +36,8 @@ public class GameConstants {
         HATCHED_PAINT = new TexturePaint(bufferedImage, rect);
     }
 
+
+
     public static final int FIGHT_TIME_PLAYER = 2500;
     public static final int FIGHT_TIME_COMPUTER = 1800;
 

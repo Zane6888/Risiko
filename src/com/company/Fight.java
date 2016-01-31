@@ -164,7 +164,6 @@ public class Fight implements Serializable {
      * @return returns true iff the fight is over
      */
     public boolean update() {
-        //TODO dont apply the whole fight at once
         apply();
         return true;
 
@@ -222,7 +221,7 @@ public class Fight implements Serializable {
         g.drawString(def.getName(), margin+width*2.5f - (float)g.getFontMetrics().getStringBounds(def.getName(), g).getWidth()/2f,margin+height-20);
     }
 
-    private static int margin = 180;
+    private static int margin = 180;  //margin between window and fighting display
 
 
     /**

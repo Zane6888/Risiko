@@ -7,7 +7,7 @@ public class Neighbors implements Serializable {
     public final Territory neighborOne;
     public final Territory neighborTwo;
 
-    private final static BasicStroke dashed =
+    private final static BasicStroke dashedStroke =
             new BasicStroke(5.0f,
                     BasicStroke.CAP_BUTT,
                     BasicStroke.JOIN_MITER,
@@ -82,7 +82,7 @@ public class Neighbors implements Serializable {
         g.setStroke(new BasicStroke(5));
         g.drawLine(start.x, start.y, end.x, end.y);
         g.setColor(new Color(230, 230, 230));
-        g.setStroke(dashed);
+        g.setStroke(dashedStroke);
         g.drawLine(start.x, start.y, end.x, end.y);
     }
 }
