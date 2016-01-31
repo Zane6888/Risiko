@@ -21,7 +21,7 @@ public class MapParser {
      */
     public static GameMap parseMap(String map) throws IOException, InvalidArgumentException {
 
-        Map<String, List<Polygon>> territories = new HashMap<>();  //Eine Map f�r die sp�tere Konvertierung in eine List<Territory>
+        Map<String, List<Polygon>> territories = new HashMap<>();  //Map for later conversion into a List<Territory>
         Map<String, Point> capitals = new HashMap<>();              //Map, that saves the Position of the Capitals of each Territory
         Map<String, List<String>> continents = new HashMap<>();     //Map, that will be converted to a List of Territories
         Map<String, Integer> continentBonus = new HashMap<>();      //
@@ -93,7 +93,7 @@ public class MapParser {
      * @param input     String that has to be parsed
      * @param neighbors a map where the neighbors described in the input string are added
      */
-    public static void neighborsOf(String input, Map<String, List<String>> neighbors) {
+    private static void neighborsOf(String input, Map<String, List<String>> neighbors) {
         input = input.substring(13); //remove "neighbors-of "
         String[] words = input.split("\\s+:\\s+"); //Split the string into the two parts header and body
         for (String s : words[1].split("\\s+-\\s+")) { //split the body into each word and iterate it
@@ -115,7 +115,7 @@ public class MapParser {
      */
     private static void patchOf(String input, Map<String, List<Polygon>> territories) {
         input = input.substring(9); //Removes "patch-of " from the string
-        String[] words = input.split("\\s+"); //Split the input string into the seperate words
+        String[] words = input.split("\\s+"); //Split the input string into the separate words
 
         String name = "";
         List<Integer> xCoords = new LinkedList<>();
@@ -129,7 +129,7 @@ public class MapParser {
             i++;
         }
 
-        //Iterate through all the coordinats and save it in the xCoords/yCoords lists
+        //Iterate through all the coordinates and save it in the xCoords/yCoords lists
         while (i < words.length - 1) {
             Point point = new Point(Integer.valueOf(words[i]), Integer.valueOf(words[i + 1]));
             point = translatePoint(point, GameConstants.MAP_HEIGHT, GameConstants.MAP_WIDTH); //translate the point to generate the 3D effect
@@ -161,7 +161,7 @@ public class MapParser {
      */
     private static void capitalOf(String input, Map<String, Point> capitals) {
         input = input.substring(11); //remove "capital-of " from the input string
-        String[] words = input.split("\\s+"); //split the string into the seperate words
+        String[] words = input.split("\\s+"); //split the string into the separate words
 
         String name = "";
 
@@ -173,7 +173,7 @@ public class MapParser {
         }
         name = name.trim(); //Trim the first whitespace from the name
 
-        //The rest of the string are the x and y coordinats and are added parsed into a new point
+        //The rest of the string are the x and y coordinates and are added parsed into a new point
         Point capital = new Point(Integer.valueOf(words[i]), Integer.valueOf(words[i + 1]));
 
         capitals.put(name, translatePoint(capital, GameConstants.MAP_HEIGHT, GameConstants.MAP_WIDTH)); //add the new capital to the map
@@ -188,7 +188,7 @@ public class MapParser {
      */
     private static void continent(String input, Map<String, Integer> continentBonus, Map<String, List<String>> continents) {
         input = input.substring(10); //remove "continent " from the string
-        String[] words = input.split("\\s:\\s"); //split the input string into the seperate words
+        String[] words = input.split("\\s:\\s"); //split the input string into the separate words
 
         //Header
         String[] header = words[0].split("\\s");

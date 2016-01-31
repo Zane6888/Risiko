@@ -13,8 +13,8 @@ public class Computer {
     };
 
     /**
-     * Takes all necessary actions for either the CLAIM or the REINFOCRE phase depending on the current GamePhase
-     * @param state
+     * Takes all necessary actions for either the CLAIM or the REINFORCE phase depending on the current GamePhase
+     * @param state GameState to work with
      */
     public void doTurn(GameState state) {
         switch (state.currentPhase) {

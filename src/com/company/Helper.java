@@ -119,12 +119,12 @@ public class Helper {
 
     public static Point2D.Double getUnitVector(Point from, Point to) {
         Point vector = new Point(to.x - from.x, to.y - from.y); //vector of the arrow
-        double vectorLenght = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
-        return new Point2D.Double(vector.x / vectorLenght, vector.y / vectorLenght); //unit vector
+        double vectorLength = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
+        return new Point2D.Double(vector.x / vectorLength, vector.y / vectorLength); //unit vector
     }
 
     /**
-     * Sorts an array descending using the Quicksort algorithm
+     * Sorts an array descending using the QuickSort algorithm
      * @param array int[] array that should be sorted
      */
     public static void sortDescending(int[] array) {
@@ -132,7 +132,7 @@ public class Helper {
     }
 
     /**
-     * Sorts an array descending using the Quicksort algorithm
+     * Sorts an array descending using the QuickSort algorithm
      * @param array int[] array that should be sorted
      * @param low starting element
      * @param high end element

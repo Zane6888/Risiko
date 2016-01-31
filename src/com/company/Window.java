@@ -14,11 +14,9 @@ public class Window extends JFrame {
                 Panel game = new Panel();
                 add(game);
 
-                Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                    public void run() {
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                         System.out.println("Saving game");
                         game.save();
-                    }
                 }, "Shutdown thread"));
 
             } catch (Exception e) {
@@ -37,6 +35,7 @@ public class Window extends JFrame {
 
     /**
      * Makes a new instance of Panel and adds a shutdown hook to save the game when window is closed
+     *
      * @param map the location of the map file the Panel is created with
      */
     private void addPanel(String map) {
@@ -44,11 +43,9 @@ public class Window extends JFrame {
             Panel game = new Panel(new Scanner(new File(map)).useDelimiter("\\Z").next());
             this.add(game);
 
-            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                public void run() {
-                    System.out.println("Saving game");
-                    game.save();
-                }
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("Saving game");
+                game.save();
             }, "Shutdown thread"));
 
         } catch (IOException e) {

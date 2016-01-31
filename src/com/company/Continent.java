@@ -57,7 +57,7 @@ public class Continent implements Serializable {
 
 
     public void paintComponent(Graphics2D g, Territory hoverTerritory, Territory selectedTerritory) {
-        //draws a yellow border arround the continent if it is owned by a single opponent
+        //draws a yellow border around the continent if it is owned by a single opponent
         //a black border is drawn otherwise
         if (isMonopolComp || isMonopolPlayer) {
             g.setColor(GameConstants.BORDER_COLOR_MONOPOL);

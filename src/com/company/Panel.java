@@ -72,7 +72,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         ois.close();
         fis.close();
 
-        //Unhide the button if necessary
+        //Show the button if necessary
         if (data.gameState.currentPhase == GamePhase.MOVE
                 || data.gameState.currentPhase == GamePhase.FOLLOW)
             button.setVisible(true);
@@ -311,7 +311,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         //Draw a blue grid
         g.setColor(new Color(0, 149, 237));
         //Vertical lines
-        //Space between x=0 and beginn of map at y=0
+        //Space between x=0 and begin of map at y=0
         int xSize = (int) ((((GameConstants.WINDOW_WIDTH - GameConstants.MAP_WIDTH) / 2f) / GameConstants.MAP_HEIGHT) * GameConstants.WINDOW_HEIGHT);
         for (int x = -xSize; x < GameConstants.WINDOW_WIDTH + xSize; x += 50)
             g.drawLine(x, GameConstants.WINDOW_HEIGHT, Helper.map(x, 0, GameConstants.WINDOW_WIDTH, xSize, GameConstants.WINDOW_WIDTH - xSize), 0);
@@ -332,7 +332,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private void drawCenteredText(String string, Graphics2D g) {
         g.setFont(smallFont);
 
-        //Split the string into seperate lines
+        //Split the string into separate lines
         String[] lines = string.split("\n");
 
         //Calculate the width of the longest line
@@ -436,12 +436,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             timer.start();
         } else {
             data.gameState.currentPhase = GamePhase.MOVEComputer;
-            computer.doPostAttack(data.gameState, data.lastFight);
+            computer.doPostAttack(data.gameState, null);
         }
     }
 
     public void mouseClicked(MouseEvent me) {
-        //Only update if no error occured while loading and the game is not over yet
+        //Only update if no error occurred while loading and the game is not over yet
         if (!errorOccurred && data.gameState.currentPhase != GamePhase.GameOver && data.gameState.currentPhase != GamePhase.FIGHT) {
             if (data.hoverTerritory != null) {
                 switch (data.gameState.currentPhase) {

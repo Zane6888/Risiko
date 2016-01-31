@@ -90,17 +90,17 @@ public class Territory implements Serializable {
             g.setColor(Helper.lightenColor(color, 50));
         } else g.setColor(color);
 
-        for (Polygon pol : patches) g.fillPolygon(pol);
+        patches.forEach(g::fillPolygon);
 
         if (selected) {
             g.setPaint(GameConstants.HATCHED_PAINT);
-            for (Polygon pol : patches) g.fillPolygon(pol);
+            patches.forEach(g::fillPolygon);
         }
 
         //Draw the border of the territory
         g.setColor(GameConstants.BORDER_COLOR_TERRITORY);
         g.setStroke(new BasicStroke(1.5f));
-        for (Polygon pol : patches) g.drawPolygon(pol);
+        patches.forEach(g::drawPolygon);
     }
 
     /**
